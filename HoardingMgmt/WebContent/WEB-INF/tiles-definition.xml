@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE tiles-definitions PUBLIC  
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"  
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+	<definition name="base.definition" template="/WEB-INF/jsps/global/index.jsp">
+		<put-attribute name="title" value="" />
+		<put-attribute name="header" value="/WEB-INF/jsps/global/header.jsp" />
+		<put-attribute name="sideNavigator"
+			value="/WEB-INF/jsps/global/sideNavigator.jsp" />
+		<put-attribute name="quickSideBar"
+			value="/WEB-INF/jsps/global/quickSideBar.jsp" />
+		<put-attribute name="scripts" value="/WEB-INF/jsps/global/scripts.jsp" />
+		<put-attribute name="styleCustomizer"
+			value="/WEB-INF/jsps/global/styleCustomizer.jsp" />
+		<put-attribute name="portletConfModelForm"
+			value="/WEB-INF/jsps/global/portletConfModelForm.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/jsps/global/footer.jsp" />
+		<put-attribute name="styles" value="/WEB-INF/jsps/global/styles.jsp" />
+
+	</definition>
+
+	<definition name="dashboard" extends="base.definition">
+		<put-attribute name="title" value="AllySuite Dashboard Page" />
+		<put-attribute name="current" value="dashboard" />
+		<put-attribute name="body"
+			value="/WEB-INF/jsps/dashboard/dashboard.jsp" />
+
+	</definition>
+
+	<definition name="viewCampaignDetails" extends="base.definition">
+		<put-attribute name="title" value="View Campaign Details" />
+		<put-attribute name="current" value="viewCampaignDetails" />
+		<put-attribute name="body"
+			value="/WEB-INF/jsps/campaign/viewCampaignDetails.jsp" />
+
+	</definition>
+
+	<definition name="viewSellerCampaignDetails" extends="base.definition">
+		<put-attribute name="title" value="View Campaign Details" />
+		<put-attribute name="current" value="viewSellerCampaignDetails" />
+		<put-attribute name="body"
+			value="/WEB-INF/jsps/campaign/viewSellerCampaignDetails.jsp" />
+
+	</definition>
+
+
+	<definition name="createCampaign" extends="base.definition">
+		<put-attribute name="title" value="Create Campaign Wizard" />
+		<put-attribute name="current" value="createCampaign" />
+		<put-attribute name="body"
+			value="/WEB-INF/jsps/campaign/createCampaign.jsp" />
+	</definition>
+
+	<definition name="campaignList" extends="base.definition">
+		<put-attribute name="title" value="Campaign List" />
+		<put-attribute name="current" value="campaignList" />
+		<put-attribute name="body"
+			value="/WEB-INF/jsps/campaign/campaignList.jsp" />
+	</definition>
+
+	<definition name="sellerCampaignList" extends="base.definition">
+		<put-attribute name="title" value="Campaign List" />
+		<put-attribute name="current" value="sellerCampaignList" />
+		<put-attribute name="body"
+			value="/WEB-INF/jsps/campaign/campaignSellerList.jsp" />
+	</definition>
+
+
+	<definition name="viewCreateMarker" extends="base.definition">
+		<put-attribute name="title" value="Create Marker" />
+		<put-attribute name="current" value="createMarker" />
+		<put-attribute name="body"
+			value="/WEB-INF/jsps/marker/createMarker.jsp" />
+	</definition>
+
+	<definition name="markerList" extends="base.definition">
+		<put-attribute name="title" value="Marker List" />
+		<put-attribute name="current" value="markerList" />
+		<put-attribute name="body"
+			value="/WEB-INF/jsps/marker/markerList.jsp" />
+	</definition>
+
+	<definition name="proposalList" extends="base.definition">
+		<put-attribute name="title" value="Proposal List" />
+		<put-attribute name="current" value="proposalList" />
+		<put-attribute name="body"
+			value="/WEB-INF/jsps/proposals/proposalList.jsp" />
+
+	</definition>
+
+	<definition name="geolocation" extends="base.definition">
+		<put-attribute name="title" value="Geo Location" />
+		<put-attribute name="current" value="geolocation" />
+		<put-attribute name="body"
+			value="/WEB-INF/jsps/campaign/GeoLocation.jsp" />
+	</definition>
+
+
+</tiles-definitions> 
