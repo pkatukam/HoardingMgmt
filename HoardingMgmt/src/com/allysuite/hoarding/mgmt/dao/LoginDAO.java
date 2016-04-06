@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -14,11 +15,14 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import com.allysuite.hoarding.mgmt.controllers.CampaignController;
 import com.allysuite.hoarding.mgmt.domain.Login;
 import com.allysuite.hoarding.mgmt.domain.User;
 
 @Component("loginDAO")
 public class LoginDAO {
+
+	private Logger logger = Logger.getLogger(LoginDAO.class);
 
 	@Autowired
 	private BuyerDAO buyerDAO;
@@ -71,12 +75,16 @@ public class LoginDAO {
 								} else {
 									return null;
 								}
+								logger.error("LoginDAO --- > User Exists!");
 								return user;
-							} else
+							} else {
+								logger.error("LoginDAO --- > Invalid Username and Password!");
 								return null;
+							}
 						}
 					});
 		} catch (Exception e) {
+			logger.error("LoginDAO --- > Cannot connect to the database. " + e.getMessage());
 			return null;
 		}
 	}
