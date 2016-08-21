@@ -21,11 +21,19 @@
 
 	</definition>
 
-	<definition name="dashboard" extends="base.definition">
+	<definition name="dashboardForSeller" extends="base.definition">
 		<put-attribute name="title" value="AllySuite Dashboard Page" />
 		<put-attribute name="current" value="dashboard" />
 		<put-attribute name="body"
-			value="/WEB-INF/jsps/dashboard/dashboard.jsp" />
+			value="/WEB-INF/jsps/dashboard/dashboardForSeller.jsp" />
+
+	</definition>
+	
+	<definition name="dashboardForBuyer" extends="base.definition">
+		<put-attribute name="title" value="AllySuite Dashboard Page" />
+		<put-attribute name="current" value="dashboard" />
+		<put-attribute name="body"
+			value="/WEB-INF/jsps/dashboard/dashboardForBuyer.jsp" />
 
 	</definition>
 
@@ -89,6 +97,15 @@
 			value="/WEB-INF/jsps/proposals/proposalList.jsp" />
 
 	</definition>
+
+	<definition name="campaignProposalDetails" extends="base.definition">
+		<put-attribute name="title" value="Campaign Proposal Details" />
+		<put-attribute name="current" value="campaignProposalDetails" />
+		<put-attribute name="body"
+			value="/WEB-INF/jsps/proposals/campaignProposalDetails.jsp" />
+
+	</definition>
+
 
 	<definition name="geolocation" extends="base.definition">
 		<put-attribute name="title" value="Geo Location" />

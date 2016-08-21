@@ -23,23 +23,18 @@
 					method="POST">
 					<a href="javascript:;" class="remove"> <i class="icon-close"></i>
 					</a>
-					<div class="input-group">
-						<input type="text" class="form-control" placeholder="Search...">
-						<span class="input-group-btn"> <a href="javascript:;"
-							class="btn submit"><i class="icon-magnifier"></i></a>
-						</span>
-					</div>
+					<div class="input-group"></div>
 				</form> <!-- END RESPONSIVE QUICK SEARCH FORM -->
 			</li>
 			<%
 				if (session == null)
-					response.sendRedirect("${pageContext.request.contextPath}/");
-				User user = (User) session.getAttribute("user");
-				if (user == null)
-					response.sendRedirect("${pageContext.request.contextPath}/");
+										response.sendRedirect("${pageContext.request.contextPath}/");
+									User user = (User) session.getAttribute("user");
+									if (user == null)
+										response.sendRedirect("${pageContext.request.contextPath}/");
 			%>
 			<%
-				if (user != null && user.getUser().equalsIgnoreCase("buyer")) {
+				//	if (user != null && user.getUser().equalsIgnoreCase("buyer")) {
 			%>
 			<li class="${current == 'dashboard' ? 'active open' : '' }"><a
 				id="dashboard"
@@ -49,8 +44,8 @@
 					class="${current == 'dashboard' ? 'arrow open' : '' }"></span>
 			</a></li>
 			<%
-				}
-				if (user != null && user.getUser().equalsIgnoreCase("buyer")) {
+				//	}
+									if (user != null && user.getUser().equalsIgnoreCase("buyer")) {
 			%>
 			<li class="${current == 'createCampaign' ? 'active open' : '' }"><a
 				id="createCampaign"
@@ -62,30 +57,31 @@
 			</a></li>
 			<%
 				}
-				if (user != null && user.getUser().equalsIgnoreCase("buyer")) {
+									if (user != null && user.getUser().equalsIgnoreCase("buyer")) {
 			%>
 			<li class="${current == 'campaignList' ? 'active open' : '' }"><a
 				href="${pageContext.request.contextPath}/viewCampaignList"> <i
-					class="icon-rocket"></i> <span class="title">My Campaign</span><span
+					class="icon-calculator"></i> <span class="title">My Campaign</span><span
 					class="${current == 'campaignList' ? 'selected' : '' }"></span> <span
 					class="${current == 'campaignList' ? 'arrow open' : '' }"></span>
 			</a></li>
 			<%
 				}
-				if (user != null && user.getUser().equalsIgnoreCase("buyer")) {
+									if (user != null && user.getUser().equalsIgnoreCase("buyer")) {
 			%>
-			<li class="${current == 'proposalList' ? 'active open' : '' }"><a
-				href="${pageContext.request.contextPath}/viewProposalList"> <i
-					class="icon-calculator"></i> <span class="title">Vendor
+			<li
+				class="${current == 'campaignProposalDetails' ? 'active open' : '' }"><a
+				href="${pageContext.request.contextPath}/viewCampaignProposalDetails">
+					<i class="icon-rocket"></i> <span class="title">Vendor
 						Proposals</span> <span
-					class="${current == 'proposalList' ? 'selected' : '' }"></span><span
-					class="${current == 'proposalList' ? 'arrow open' : '' } "></span>
+					class="${current == 'campaignProposalDetails' ? 'selected' : '' }"></span><span
+					class="${current == 'campaignProposalDetails' ? 'arrow open' : '' } "></span>
 			</a></li>
 			<%
 				}
-				if (user != null && user.getUser().equalsIgnoreCase("seller")) {
-					List<City> cities = ((Seller) user).getCities();
-					int number_of_cities = cities.size();
+									if (user != null && user.getUser().equalsIgnoreCase("seller")) {
+										List<City> cities = ((Seller) user).getCities();
+										int number_of_cities = cities.size();
 			%>
 			<li class="${current == 'createMarker' ? 'active open' : '' }"><a
 				href="javascript:;"> <i class="icon-pointer"></i> <span
@@ -97,20 +93,20 @@
 				<ul class="sub-menu">
 					<%
 						for (int i = 0; i < cities.size(); i++) {
-								City city = cities.get(i);
+																							City city = cities.get(i);
 					%>
-					<li><a
-						href="${pageContext.request.contextPath}/viewCreateMarker/cityId/<%=city.getCityId()%>/cityName/<%=city.getCityName()%>">
-							<%=city.getCityName()%></a></li>
+					<li><a id="<%=city.getCityId()%>"
+						class="markerBtn createMarkerBtn"> <%=city.getCityName()%></a></li>
+
 					<%
 						}
 					%>
 				</ul></li>
 			<%
 				}
-				if (user != null && user.getUser().equalsIgnoreCase("seller")) {
-					List<City> cities = ((Seller) user).getCities();
-					int number_of_cities = cities != null ? cities.size() : 0;
+									if (user != null && user.getUser().equalsIgnoreCase("seller")) {
+										List<City> cities = ((Seller) user).getCities();
+										int number_of_cities = cities != null ? cities.size() : 0;
 			%>
 			<li class="${current == 'markerList' ? 'active open' : '' }"><a
 				href="javascript:;"> <i class="fa fa-list"></i> <span
@@ -122,20 +118,19 @@
 				<ul class="sub-menu">
 					<%
 						if (cities != null) {
-								for (int i = 0; i < cities.size(); i++) {
-									City city = cities.get(i);
+																							for (int i = 0; i < cities.size(); i++) {
+																								City city = cities.get(i);
 					%>
-					<li><a
-						href="${pageContext.request.contextPath}/viewMarkerList/cityId/<%=city.getCityId()%>/cityName/<%=city.getCityName()%>">
-							<%=city.getCityName()%></a></li>
+					<li><a id="<%=city.getCityId()%>"
+						class="markerBtn viewMarkerBtn"> <%=city.getCityName()%></a></li>
 					<%
 						}
-							}
+																						}
 					%>
 				</ul></li>
 			<%
 				}
-				if (user != null && user.getUser().equalsIgnoreCase("seller")) {
+									if (user != null && user.getUser().equalsIgnoreCase("seller")) {
 			%>
 			<li class="${current == 'sellerCampaignList' ? 'active open' : '' }"><a
 				href="${pageContext.request.contextPath}/viewSellerCampaignList">
@@ -153,42 +148,63 @@
 					class="${current == 'messages' ? 'selected' : '' }"></span><span
 					class="${current == 'messages' ? 'arrow open' : '' } "></span>
 			</a></li>
-			<li class="${current == 'history' ? 'active open' : '' }"><a
-				href="javascript:;"> <i class="fa fa-history"></i> <span
-					class="title">Historic Data</span><span
-					class="${current == 'history' ? 'selected' : '' }"></span> <span
-					class="${current == 'history' ? 'arrow open' : '' } "></span>
-			</a></li>
+
 			<li class="${current == 'faqs' ? 'active open' : '' }"><a
 				href="javascript:;"> <i class="icon-question"></i> <span
-					class="title">FAQs</span> <span
+					class="title">FAQ</span> <span
 					class="${current == 'faqs' ? 'selected' : '' }"></span><span
 					class="${current == 'faqs' ? 'arrow open' : '' } "></span>
 			</a></li>
+
+			<li class="${current == 'about' ? 'active open' : '' }"><a
+				href="javascript:;"> <i class="icon-info"></i> <span
+					class="title">About</span> <span
+					class="${current == 'about' ? 'selected' : '' }"></span><span
+					class="${current == 'about' ? 'arrow open' : '' } "></span>
+			</a></li>
+			<li><a href="javascript:;"> <span class="title"></span>
+			</a>
+				<div id="oohVideo">
+					<iframe width="200" height="150"
+						style="margin-left: 15px; border: none;"
+						src="http://www.youtube.com/embed/mCXvNPzFpe4?autoplay=0"></iframe>
+				</div></li>
 			<!-- END ANGULARJS LINK -->
-			<li class="heading">
-				<h3 class="uppercase">Extras</h3>
-			</li>
-			<li class="tooltips" data-container="body" data-placement="right"
-				data-html="true" data-original-title="Demo Tutorial Videos"><a
-				href="angularjs" target="_blank"> <i class="icon-camcorder"></i>
-					<span class="title"> Videos </span><span class="arrow "></span>
-			</a>
-				<ul class="sub-menu">
-					<li><a href="maps_google.html"> Create Campaign</a></li>
-					<li><a href="maps_vector.html"> Raise RFP</a></li>
-					<li><a href="maps_vector.html"> Negotiate</a></li>
-				</ul></li>
-			<li class="last "><a href="javascript:;"> <i
-					class="icon-pointer"></i> <span class="title">Maps</span> <span
-					class="arrow "></span>
-			</a>
-				<ul class="sub-menu">
-					<li><a href="maps_google.html"> Google Maps</a></li>
-					<li><a href="maps_vector.html"> Vector Maps</a></li>
-				</ul></li>
+
+
 		</ul>
+
+
 		<!-- END SIDEBAR MENU -->
 	</div>
 </div>
 <!-- END SIDEBAR -->
+<script>
+	jQuery(document).ready(function() {
+		//alert("Here");
+		// initiate layout and plugins
+
+		$(".markerBtn").click(function() {
+			//	alert(this.id + " " + this.text);
+			var cityId = this.id;
+			var cityName = this.text;
+			var url = ctx + "/markerCity";
+			var action;
+			if ($(this).hasClass("createMarkerBtn")) {
+				action = "viewCreateMarker";
+			} else if ($(this).hasClass("viewMarkerBtn")) {
+				action = "viewMarkerList";
+			}
+			var data = {
+				"cityId" : cityId,
+				"cityName" : cityName,
+				"action" : action
+			};
+			$.post(url, data).done(function(status) {
+				window.location = ctx + status;
+			});
+
+		});
+
+	});
+</script>

@@ -2,10 +2,6 @@ package com.allysuite.hoarding.mgmt.domain;
 
 import java.util.Date;
 
-import org.codehaus.jackson.map.annotate.JsonDeserialize;
-
-import com.allysuite.hoarding.mgmt.commons.CustomJsonDateFormatDeserializer;
-
 public class Message {
 
 	public Message(int proposalId, String initiatedBy, String message,
@@ -64,7 +60,6 @@ public class Message {
 		return sentDate;
 	}
 
-	@JsonDeserialize(using = CustomJsonDateFormatDeserializer.class)
 	public void setSentDate(Date sentDate) {
 		this.sentDate = sentDate;
 	}

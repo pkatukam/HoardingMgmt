@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -49,8 +50,10 @@ public class MessageController {
 			Message message = new Message(proposalId, initiatedBy, messageStr,
 					sentDate);
 			if (messageService.sendMessage(message)) {
-				logger.info("Message sent successfully!!!");
-				return "success";
+				logger.info("Message sent successfully --> " + message + " !!!");
+				String messageJson = new ObjectMapper()
+						.writeValueAsString(message);
+				return messageJson;
 			}
 		}
 		logger.info("Message sent Failure!!!");

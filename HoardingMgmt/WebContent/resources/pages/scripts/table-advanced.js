@@ -2,7 +2,7 @@ var TableAdvanced = function() {
 	
 	var initTable6 = function() {
 		var table = $('#sample_6');
-
+		
 		/* Fixed header extension: http://datatables.net/extensions/keytable/ */
 
 		var oTable = table.dataTable({
@@ -21,7 +21,6 @@ var TableAdvanced = function() {
 				"search" : "Search:",
 				"zeroRecords" : "No matching records found"
 			},
-			"order" : [ [ 0, 'dsc' ] ],
 			"lengthMenu" : [ [ 5, 10, 15, 20, -1 ], [ 5, 10, 15, 20, "All" ] // change
 																				// per
 																				// page
@@ -36,7 +35,6 @@ var TableAdvanced = function() {
 				//"searchable" : false,
 				//"targets" : [ 0 ]
 			} ],
-			"order" : [ [ 0, "dsc" ] ]
 		});
 
 		var oTableColReorder = new $.fn.dataTable.ColReorder(oTable);

@@ -15,7 +15,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import com.allysuite.hoarding.mgmt.controllers.CampaignController;
 import com.allysuite.hoarding.mgmt.domain.Login;
 import com.allysuite.hoarding.mgmt.domain.User;
 

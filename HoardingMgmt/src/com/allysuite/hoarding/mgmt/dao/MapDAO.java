@@ -91,7 +91,7 @@ public class MapDAO {
 						map.setMapId(rs.getInt("mapId"));
 						map.setCampaignId(rs.getInt("campaignId"));
 						map.setCityId(rs.getInt("cityId"));
-						List<Shapes> shapes = new ArrayList<>();
+						List<Shapes> shapes = new ArrayList<Shapes>();
 						List<Rectangle> rectangle = rectangleDAO
 								.getRectanglesByMapID(map.getMapId());
 						shapes.addAll(rectangle);
@@ -119,7 +119,7 @@ public class MapDAO {
 								map.setMapId(rs.getInt("mapId"));
 								map.setCampaignId(rs.getInt("campaignId"));
 								map.setCityId(rs.getInt("cityId"));
-								List<Shapes> shapes = new ArrayList<>();
+								List<Shapes> shapes = new ArrayList<Shapes>();
 								List<Rectangle> rectangle = rectangleDAO
 										.getRectanglesByMapID(map.getMapId());
 								shapes.addAll(rectangle);
@@ -153,7 +153,7 @@ public class MapDAO {
 				map.setMapId(rs.getInt("mapId"));
 				map.setCampaignId(rs.getInt("campaignId"));
 				map.setCityId(rs.getInt("cityId"));
-				List<Shapes> shapes = new ArrayList<>();
+				List<Shapes> shapes = new ArrayList<Shapes>();
 				List<Rectangle> rectangle = rectangleDAO
 						.getRectanglesByMapID(map.getMapId());
 				shapes.addAll(rectangle);
@@ -164,6 +164,7 @@ public class MapDAO {
 						.getMapId());
 				shapes.addAll(polygon);
 				map.setShapes(shapes);
+				System.out.print(false);
 				return map;
 			}
 		});

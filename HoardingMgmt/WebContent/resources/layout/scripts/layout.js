@@ -374,6 +374,7 @@ var Layout = function () {
     var handleSidebarToggler = function () {
         var body = $('body');
         if ($.cookie && $.cookie('sidebar_closed') === '1' && Metronic.getViewPort().width >= resBreakpointMd) {
+        	$("#oohVideo").hide();
             $('body').addClass('page-sidebar-closed');
             $('.page-sidebar-menu').addClass('page-sidebar-menu-closed');
         }
@@ -383,14 +384,18 @@ var Layout = function () {
             var sidebar = $('.page-sidebar');
             var sidebarMenu = $('.page-sidebar-menu');
             $(".sidebar-search", sidebar).removeClass("open");
-
+            
             if (body.hasClass("page-sidebar-closed")) {
+            	alert("show");
+            	$("#oohVideo").show();
                 body.removeClass("page-sidebar-closed");
                 sidebarMenu.removeClass("page-sidebar-menu-closed");
                 if ($.cookie) {
                     $.cookie('sidebar_closed', '0');
                 }
             } else {
+            	alert("hide");
+            	$("#oohVideo").hide();
                 body.addClass("page-sidebar-closed");
                 sidebarMenu.addClass("page-sidebar-menu-closed");
                 if (body.hasClass("page-sidebar-fixed")) {

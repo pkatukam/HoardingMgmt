@@ -1,6 +1,7 @@
 package com.allysuite.hoarding.mgmt.controllers;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,8 +45,9 @@ public class CampaignController {
 	}
 
 	@RequestMapping(value = "/createCampaign", method = RequestMethod.POST)
-	public @ResponseBody String createCampaign(Model model, HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+	public @ResponseBody String createCampaign(Model model,
+			HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
 		HttpSession session = request.getSession(false);
 		if (session != null) {
 			User user = (User) session.getAttribute("user");
@@ -52,6 +55,7 @@ public class CampaignController {
 			logger.info("jsonString --- > " + jsonbody);
 			Campaign campaign_json = fromJson(jsonbody);
 			campaign_json.setBuyerId(((Buyer) user).getBuyerId());
+			campaign_json.setCampaignCreatedDate(new Date());
 			if (campaignService.createCampaign(campaign_json))
 				return "/viewCampaignList";
 		}
@@ -138,16 +142,33 @@ public class CampaignController {
 
 	}
 
-	@RequestMapping(value = "/viewSellerCampaignDetails/campaignId/{campaignId}")
-	public ModelAndView viewSellerCampaignDetails(
-			@PathVariable("campaignId") int campaignId,
-			HttpServletRequest request, Model model) throws JsonParseException,
-			JsonMappingException, IOException {
-		logger.info("Seller Campaign Details " + campaignId);
+	@RequestMapping(value = "/openCampaignDetails", method = RequestMethod.POST)
+	public @ResponseBody String openProposalFeed(ModelMap model,
+			HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		logger.info("openCampaignDetails");
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			logger.info("-----openCampaignDetails---" + session);
+			String campaignId = request.getParameter("campaignId");
+			session.setAttribute("openCampaignDetails", campaignId);
+		} else {
+			return "/login";
+		}
+		return "/viewSellerCampaignDetails";
+	}
+
+	@RequestMapping(value = "/viewSellerCampaignDetails")
+	public ModelAndView viewSellerCampaignDetails(HttpServletRequest request,
+			Model model) throws JsonParseException, JsonMappingException,
+			IOException {
 		HttpSession session = request.getSession(false);
 		if (session != null) {
 			User user = (User) session.getAttribute("user");
 			if (user != null) {
+				int campaignId = Integer.parseInt((String) session
+						.getAttribute("openCampaignDetails"));
+				logger.info("Seller Campaign Details " + campaignId);
 				Campaign campaign = campaignService.getCampaignByID(campaignId,
 						(Seller) user);
 				ModelAndView mv = new ModelAndView("viewSellerCampaignDetails");
@@ -156,7 +177,6 @@ public class CampaignController {
 				String jsonString = fromObjToJson(campaign);
 				campaign.setJsonString(jsonString);
 				logger.info("jsonString --> " + jsonString);
-				logger.info("jsonString --> " + campaign.getJsonString());
 				mv.addObject("campaign", campaign);
 				return mv;
 			}
@@ -164,6 +184,48 @@ public class CampaignController {
 		model.addAttribute("login", new Login());
 		model.addAttribute("sessionError");
 		return new ModelAndView("login/login");
+	}
+
+	@RequestMapping(value = "/fetchCampaignFeed", method = RequestMethod.POST)
+	public @ResponseBody String fetchCampaignFeed(ModelMap model,
+			HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		logger.info("-----fetchCampaignFeed---");
+		HttpSession session = request.getSession(false);
+		logger.info("-----fetchCampaignFeed---" + session);
+		try {
+			if (session != null) {
+				User user = (User) session.getAttribute("user");
+				logger.info("-----fetchCampaignFeed---" + user);
+				if (user != null) {
+					List<Campaign> campaignFeedList;
+					if (user.getUser().equalsIgnoreCase("buyer")) {
+						int buyerId = ((Buyer) user).getBuyerId();
+						logger.info("Get Campaign Feed for BuyerId --> "
+								+ buyerId);
+						campaignFeedList = campaignService
+								.getAllCampaignsForBuyer(((Buyer) user)
+										.getBuyerId());
+					} else {
+						int sellerId = ((Seller) user).getSellerId();
+						logger.info("Get Campaign Feed for SellerId --> "
+								+ sellerId);
+						campaignFeedList = campaignService
+								.getSellerCampaignFeed((Seller) user);
+					}
+					String campaignFeedJson = new ObjectMapper()
+							.writeValueAsString(campaignFeedList);
+					String campaignFeed = "campaignFeedList";
+					String feedJson = "{ \"" + campaignFeed + "\" : "
+							+ campaignFeedJson + "}";
+					logger.info(feedJson);
+					return feedJson;
+				}
+			}
+		} catch (ClassCastException e) {
+			session.invalidate();
+		}
+		return "";
 	}
 
 	public Campaign fromJson(String json) throws JsonParseException,

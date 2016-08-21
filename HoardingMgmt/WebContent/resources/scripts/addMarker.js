@@ -17,10 +17,14 @@ var AddMarker = function() {
 			}
 			toastr.success("Please click on the map to add the marker. ",
 					"Add the Marker");
-
+			var mapClass;
+			var prevMapClass;
 			var cityId = $("#cityId").val();
 			var cityName = $("#cityName").val();
 			var markerCount = 0;
+			setMapSize();
+			$("#map-add-marker").addClass(mapClass);
+			prevMapClass = mapClass;
 			createMap(cityName);
 			var marker;
 			var marker_removed = true;
@@ -85,6 +89,7 @@ var AddMarker = function() {
 										// alert(markerData);
 										var data = $.parseJSON(markerData);
 										var markersData = data.markerData;
+										
 										// alert(markersData[0].latitude +
 										// markersData[0].longitude);
 										for (var i = 0; i < markersData.length; i++) {
@@ -92,11 +97,15 @@ var AddMarker = function() {
 												lat : markersData[i].latitude,
 												lng : markersData[i].longitude
 											};
+											
+											var markerImage = "./static/scripts/icons/markers/categories/"
+												+ markersData[i].categoryId + ".png";
+											
 											var marker_db = new google.maps.Marker(
 													{
 														position : location,
 														map : map,
-														icon : storedMarkerImage,
+														icon : markerImage
 													});
 											addClickFunction(marker_db,
 													markersData[i]);
@@ -336,7 +345,7 @@ var AddMarker = function() {
 				$(image_holder).empty();
 				for (var j = 0; j < markerGallery.length; j++) {
 					var id = "DBid" + markerGallery[j].markerGalleryId;
-				//	alert("added" + id);
+					// alert("added" + id);
 					dbUploadFiles[id] = markerGallery[j];
 					var divContent = $("<div />", {
 						id : 'div' + id
@@ -378,14 +387,14 @@ var AddMarker = function() {
 			}
 
 			function highlightMarkerForEdit(marker, markerData) {
-				marker.setIcon(editMarkerImage);
+				//marker.setIcon(editMarkerImage);
 				editMarker = marker;
 				editMarkerData = markerData;
 			}
 
 			function unHighlightPrevMarkerForEdit() {
 				if (editMarker != null) {
-					editMarker.setIcon(storedMarkerImage);
+					//editMarker.setIcon(storedMarkerImage);
 					// editMarker = null;
 					// editMarkerData = null;
 					formEdited = false;
@@ -515,9 +524,9 @@ var AddMarker = function() {
 					"markerId" : $("#markerId").val()
 				};
 				$.post(ctx + "/deleteMarker", markerDt).done(function(status) {
-					//alert(status)
+					// alert(status)
 					if (status) {
-					//	alert("success");
+						// alert("success");
 						editMarker.setMap(null);
 						editMarker = null
 					} else {
@@ -553,14 +562,14 @@ var AddMarker = function() {
 									}
 									var markerGaleries = [];
 									$.each(dbUploadFiles, function(key, value) {
-									//	alert(key);
-										//alert(value.markerGalleryId);
+										// alert(key);
+										// alert(value.markerGalleryId);
 										oMyForm.append("markerDatabaseIds",
 												value.markerGalleryId);
 									});
 									var other_data = $("#marker_form")
 											.serializeArray();
-									//alert(other_data + oMyForm);
+									// alert(other_data + oMyForm);
 									$.each(other_data,
 											function(key, input) {
 												oMyForm.append(input.name,
@@ -576,8 +585,8 @@ var AddMarker = function() {
 												contentType : false,
 												type : 'POST',
 												success : function(markerData) {
-												//	alert("success");
-												//	alert(markerData);
+													// alert("success");
+													// alert(markerData);
 													var data = $
 															.parseJSON(markerData);
 													var location = {
@@ -591,11 +600,16 @@ var AddMarker = function() {
 													}
 													editMarker = null;
 													marker_removed = true;
+													
+													var markerImage = "./static/scripts/icons/markers/categories/"
+														+ data.categoryId + ".png";
+													
+													
 													var marker_stored = new google.maps.Marker(
 															{
 																position : location,
 																map : map,
-																icon : storedMarkerImage
+																icon : markerImage
 															});
 													addClickFunction(
 															marker_stored, data);
@@ -651,6 +665,43 @@ var AddMarker = function() {
 								});
 
 			}
+
+			function setMapSize() {
+				var max = 1349;
+				var min = 972;
+				var tempAdd = 0;
+				var height = jQuery(window).height();
+				var width = jQuery(window).width();
+				var mapWidth;
+				windowWidth = width;
+				if (width <= min) {
+					mapWidth = 910 - (min - width);
+					mapWidth = mapWidth + 40;
+				} else {
+					mapWidth = width - 269;
+				}
+
+				mapClass = "mapStyle" + width;
+				$(
+						"<style type='text/css'> .mapStyle" + width
+								+ "{ height:550px; width:" + mapWidth
+								+ "px;} </style>").appendTo("head");
+
+			}
+
+			$(window).resize(function() {
+				setMapSize();
+				if (prevMapClass) {
+					$("." + prevMapClass).addClass(mapClass);
+					if (prevMapClass != mapClass)
+						$("." + prevMapClass).removeClass(prevMapClass);
+					prevMapClass = mapClass;
+				}
+				var currCenter = map.getCenter();
+				google.maps.event.trigger(map, "resize");
+				map.setCenter(currCenter);
+
+			});
 
 		}
 	};

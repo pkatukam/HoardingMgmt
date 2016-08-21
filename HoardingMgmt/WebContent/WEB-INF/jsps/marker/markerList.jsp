@@ -38,10 +38,7 @@ body {
 }
 </style>
 <style>
-.mapStyle {
-	height: 590px;
-	width: 1050px;
-}
+
 
 .stick {
 	position: fixed;
@@ -238,7 +235,7 @@ body {
 					</div>
 				</div>
 				<div class="portlet-body" id="mapDiv" hidden="true">
-					<div id="map-add-marker" class="mapStyle"></div>
+					<div id="map-add-marker" ></div>
 				</div>
 			</div>
 		</div>

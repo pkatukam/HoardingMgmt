@@ -14,6 +14,12 @@ var CampaignDetailsForSeller = function() {
 			var JSONString;
 			var isMarkerEdited = false;
 			var markersHash = {};
+			var mapClass;
+			var prevMapClass;
+			var mapExpandClass;
+			var prevMapExpandClass;
+			var cityMap = {};
+			var windowWidth;
 
 			$.post(ctx + "/getMapDetails").done(function(campaignData) {
 				if (campaignData) {
@@ -28,11 +34,18 @@ var CampaignDetailsForSeller = function() {
 			});
 
 			function initializeMapElements(mapData, cityData, campaignData) {
+				setMapSize();
 				for (var i = 0; i < mapData.length; i++) {
 					var city = getObjects(cityData, "cityId", mapData[i].cityId);
-					createMap(city[0].cityId, city[0].cityName, mapData[i],
+					var cityName = city[0].cityName;
+					// alert(mapClass + " " + $("#map-canvas" + cityName))
+					$("#map-canvas" + cityName).addClass(mapClass);
+					// $("#map-canvas" + cityName).html(windowWidth);
+					createMap(city[0].cityId, cityName, mapData[i],
 							campaignData);
 				}
+				prevMapClass = mapClass;
+				prevMapExpandClass = mapExpandClass;
 			}
 
 			google.maps.Circle.prototype.contains = function(latLng) {
@@ -206,8 +219,6 @@ var CampaignDetailsForSeller = function() {
 								if (form.valid() == false) {
 									return false;
 								}
-								// alert($("#availableStartDate").val()
-								// + $("#availableEndDate").val());
 								var isAvailable = 'N';
 								if ($("#availability").val() == "Available") {
 									isAvailable = 'A';
@@ -313,8 +324,6 @@ var CampaignDetailsForSeller = function() {
 								var city = $("#city_hidden").val();
 								var portlet = $("#portlet" + city);
 								var map = mapHash[city];
-								// alert("#portlet" + city + " " +
-								// fullScreenCity);
 								if (fullScreenCity == city
 										&& !portlet
 												.hasClass('portlet-fullscreen')) {
@@ -323,9 +332,9 @@ var CampaignDetailsForSeller = function() {
 									$('body').addClass(
 											'page-portlet-fullscreen');
 									$("#map-canvas" + city).removeClass(
-											"mapStyle");
+											mapClass);
 									$("#map-canvas" + city).addClass(
-											"mapStyleExpand");
+											mapExpandClass);
 									google.maps.event.trigger(map, "resize");
 									map.setCenter(currCenter);
 								}
@@ -335,18 +344,11 @@ var CampaignDetailsForSeller = function() {
 			$("#close")
 					.click(
 							function() {
-								// alert("close");
 								document.getElementById('light').style.display = 'none';
 								document.getElementById('fade').style.display = 'none';
 								var city = $("#city_hidden").val();
 								var portlet = $("#portlet" + city);
 								var map = mapHash[city];
-								// alert(map);
-								/*
-								 * alert("#portlet" + city + " " +
-								 * fullScreenCity + " " + portlet
-								 * .hasClass('portlet-fullscreen'));
-								 */
 								if (fullScreenCity == city
 										&& !portlet
 												.hasClass('portlet-fullscreen')) {
@@ -354,11 +356,10 @@ var CampaignDetailsForSeller = function() {
 									portlet.addClass('portlet-fullscreen');
 									$('body').addClass(
 											'page-portlet-fullscreen');
-									// alert("inside");
 									$("#map-canvas" + city).removeClass(
-											"mapStyle");
+											mapClass);
 									$("#map-canvas" + city).addClass(
-											"mapStyleExpand");
+											mapExpandClass);
 									google.maps.event.trigger(map, "resize");
 									map.setCenter(currCenter);
 								}
@@ -369,59 +370,80 @@ var CampaignDetailsForSeller = function() {
 				$('#proposal_tabs a[href="#tabPane_1"]').tab('show');
 			});
 
-			$('#messageString').keypress(
-					function(event) {
-						var keycode = (event.keyCode ? event.keyCode
-								: event.which);
-						if (keycode == '13') {
-							var messageScroll = $("#message_scroll");
-							var divContent = $("<div />").css({
-								"padding-bottom" : "10px",
-								width : "280px",
-								"padding-right" : "5px"
-							}).appendTo(messageScroll);
-							var messageDiv = $("<div />").css({
-								"background" : "buttonface",
-								"padding" : "1px"
-							}).appendTo(divContent);
-							var spanUser = $("<span />").css({
-								id : "userSpan",
-								"text-decoration" : "bold"
-							}).appendTo(messageDiv);
-							var spanDateTime = $("<span />").css({
-								id : "dateSpan",
-								"text-decoration" : "bold"
-							}).appendTo(messageDiv);
-							var spanBody = $("<span />").css({
-								id : "bodySpan",
-								"word-wrap" : "break-word"
-							}).appendTo(messageDiv);
-							var msg = $('#messageString').val();
-							$(spanBody).html(msg);
-							var now = moment().format('MM/DD/YYYY HH:mm:ss');
-							$(spanDateTime).html("<b>(" + now + ")</b></br>");
-							$(spanUser).html(
-									"<b>"
-											+ $("#firstName").val()
-											+ " "
-											+ $("#lastName").val().charAt(0)
-													.toUpperCase() + "</b>");
-							$('#messageString').val("");
-						//	alert($("#proposalId").val());
-							var messageData = {
-								message : msg,
-								sentDate : now,
-								proposalId : $("#proposalId").val(),
-								initiatedBy : "s"
-							}
-							$.post(ctx + "/sendMessage", messageData).done(
-									function(messageData) {
-										if (!messageData) {
-											alert("Message Failure!!!");
-										}
-									});
-						}
-					});
+			$('#messageString')
+					.keypress(
+							function(event) {
+								var keycode = (event.keyCode ? event.keyCode
+										: event.which);
+								if (keycode == '13') {
+									var messageScroll = $("#message_scroll");
+									var divContent = $("<div />").css({
+										"padding-bottom" : "10px",
+										width : "280px",
+										"padding-right" : "5px"
+									}).appendTo(messageScroll);
+									var messageDiv = $("<div />").css({
+										"background" : "buttonface",
+										"padding" : "1px"
+									}).appendTo(divContent);
+									var spanUser = $("<span />").css({
+										id : "userSpan",
+										"text-decoration" : "bold"
+									}).appendTo(messageDiv);
+									var spanDateTime = $("<span />").css({
+										id : "dateSpan",
+										"text-decoration" : "bold"
+									}).appendTo(messageDiv);
+									var spanBody = $("<span />").css({
+										id : "bodySpan",
+										"word-wrap" : "break-word"
+									}).appendTo(messageDiv);
+									var msg = $('#messageString').val();
+									$(spanBody).html(msg);
+									var now = moment().format(
+											'MM/DD/YYYY HH:mm:ss');
+									$(spanDateTime).html(
+											"<b>(" + now + ")</b></br>");
+									$(spanUser).html(
+											"<b>"
+													+ $("#firstName").val()
+													+ " "
+													+ $("#lastName").val()
+															.charAt(0)
+															.toUpperCase()
+													+ "</b>");
+									$('#messageString').val("");
+									var messageData = {
+										message : msg,
+										sentDate : now,
+										proposalId : $("#proposalId").val(),
+										initiatedBy : "s"
+									}
+									$
+											.post(ctx + "/sendMessage",
+													messageData)
+											.done(
+													function(data) {
+														if (!data) {
+															alert("Message Failure!!!");
+														} else {
+															var proposal = getObjects(
+																	proposalsData,
+																	"proposalId",
+																	$(
+																			"#proposalId")
+																			.val());
+															if (proposal.length > 0) {
+																var messages = proposal[0].messages;
+																var message = $
+																		.parseJSON(data);
+																proposal[0].messages
+																		.push(message);
+															}
+														}
+													});
+								}
+							});
 
 			function addClickFunction(marker, markerData, categorysData,
 					campaignData, city, map) {
@@ -456,12 +478,10 @@ var CampaignDetailsForSeller = function() {
 									}
 									if (markerData.lighting == 'L') {
 										$("#lighting").val("Lite");
-										// alert($("#lite"));
 										$("#lite").prop("checked", true);
 										$.uniform.update('#lite');
 									} else {
 										$("#lighting").val("Not Lite");
-										// alert($("#notLite"));
 										$("#notLite").prop("checked", true);
 										$.uniform.update('#notLite');
 									}
@@ -476,13 +496,9 @@ var CampaignDetailsForSeller = function() {
 									$("#sellerId_hidden").val(
 											markerData.sellerId);
 									$("#cityId_hidden").val(markerData.cityId);
-									// alert("Here we go");
-									// alert(" ----- PROPOSALS ---- "
-									// + proposalsData);
 									var proposal = getObjects(proposalsData,
 											"markerId", markerData.markerId);
 
-									// alert(proposal.length);
 									var category = getObjects(categorysData,
 											"categoryId", markerData.categoryId);
 									$("#categoryId").val(
@@ -491,11 +507,6 @@ var CampaignDetailsForSeller = function() {
 									$("#address").text(markerData.address);
 									var portlet = $("#portlet" + city);
 									var myClass = portlet.attr("class");
-									/*
-									 * alert("#portlet" + city + " - " + portlet
-									 * .hasClass('portlet-fullscreen') + ' ' +
-									 * myClass);
-									 */
 									if (portlet.hasClass('portlet-fullscreen')) {
 										fullScreenCity = city;
 										portlet
@@ -505,9 +516,9 @@ var CampaignDetailsForSeller = function() {
 										portlet.children('.portlet-body').css(
 												'height', 'auto');
 										$("#map-canvas" + city).removeClass(
-												"mapStyleExpand");
+												mapExpandClass);
 										$("#map-canvas" + city).addClass(
-												"mapStyle");
+												mapClass);
 										var currCenter = map.getCenter();
 										google.maps.event
 												.trigger(map, "resize");
@@ -548,11 +559,7 @@ var CampaignDetailsForSeller = function() {
 									$("#tabPane_1").removeClass("active");
 
 									if (proposal.length > 0) {
-										/*
-										 * alert(proposal[0].availableStartDate + "
-										 * === " + new Date(
-										 * proposal[0].availableStartDate));
-										 */
+
 										$("#proposalId").val(
 												proposal[0].proposalId);
 
@@ -564,7 +571,6 @@ var CampaignDetailsForSeller = function() {
 
 										$("#message").attr("disabled",
 												"disabled");
-										//alert(messages);
 										if (messages.length > 0) {
 											$("#messagesLi").css("visibility",
 													"visible");
@@ -752,7 +758,6 @@ var CampaignDetailsForSeller = function() {
 										error.show();
 									} else if ($("#height").val() == ''
 											|| $("#height").val() == 0) {
-										// alert("Height empty");
 										editError.show();
 										$("#send_proposal").attr("disabled",
 												"disabled");
@@ -872,7 +877,6 @@ var CampaignDetailsForSeller = function() {
 						.done(
 								function(markerData) {
 									if (markerData) {
-										// alert(markerData);
 										var data = $.parseJSON(markerData);
 										markersData = data.markerData;
 										categorysData = data.categoryList;
@@ -880,36 +884,20 @@ var CampaignDetailsForSeller = function() {
 										buyersList = data.buyersList;
 										JSONString = markerData;
 										markersHash[city] = markersData;
-										// alert(markerData);
-										// alert(markersData[0].latitude +
-										// markersData[0].longitude);
 										for (var i = 0; i < markersData.length; i++) {
 											var location = {
 												lat : markersData[i].latitude,
 												lng : markersData[i].longitude
 											};
-											var categoryColor = [ "C03134",
-													"1BBC9B", "48308B",
-													"E87E04", "f59c7b",
-													"a57fb5", "a294bb",
-													"9A12B3", "c49f47",
-													"444444", "FFFFFF",
-													"67c6bf", "fafafa",
-													"cb5a5e", "E08283",
-													"e35b5a" ];
-											var newMarkerImage = new google.maps.MarkerImage(
-													"http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|"
-															+ categoryColor[markersData[i].categoryId],
-													new google.maps.Size(21, 34),
-													new google.maps.Point(0, 0),
-													new google.maps.Point(10,
-															34));
+																						
+											var markerImage = "./static/scripts/icons/markers/categories/"
+												+ markersData[i].categoryId + ".png";
 
 											var marker_db = new google.maps.Marker(
 													{
 														position : location,
 														map : map,
-														icon : newMarkerImage,
+														icon : markerImage,
 														clickable : true
 													});
 											var myLatlng = new google.maps.LatLng(
@@ -967,13 +955,13 @@ var CampaignDetailsForSeller = function() {
 				$("#fullScreen" + city).click(function() {
 					var currCenter = map.getCenter();
 					if (fullScreen) {
-						$("#map-canvas" + city).removeClass("mapStyleExpand");
-						$("#map-canvas" + city).addClass("mapStyle");
+						$("#map-canvas" + city).removeClass(mapExpandClass);
+						$("#map-canvas" + city).addClass(mapClass);
 						fullScreen = false;
 						fullScreenCity = "none";
 					} else {
-						$("#map-canvas" + city).removeClass("mapStyle");
-						$("#map-canvas" + city).addClass("mapStyleExpand");
+						$("#map-canvas" + city).removeClass(mapClass);
+						$("#map-canvas" + city).addClass(mapExpandClass);
 						fullScreen = true;
 					}
 					google.maps.event.trigger(map, "resize");
@@ -981,6 +969,77 @@ var CampaignDetailsForSeller = function() {
 				});
 
 			}
+
+			function setMapSize() {
+				// alert("Here");
+				var max = 1349;
+				var min = 972;
+				var tempAdd = 0;
+				var height = jQuery(window).height();
+				var width = jQuery(window).width();
+				var mapWidth;
+				var mapExpandWidth;
+				windowWidth = width;
+				if (width < max) {
+					if (width <= min) {
+						mapWidth = 910 - (min - width);
+						if (width <= 700) {
+							mapWidth = mapWidth + 20;
+							mapExpandWidth = mapWidth;
+						}
+					} else {
+						tempAdd = (max - width) / 10;
+						tempAdd = tempAdd + (tempAdd / 10);
+						mapWidth = (0.37 * width) - tempAdd;
+						mapExpandWidth = width - 22;
+					}
+				} else {
+					mapWidth = 500;
+					mapExpandWidth = 1340;
+				}
+
+				// alert(width + " " + mapWidth);
+				mapClass = "mapStyle" + width;
+				$(
+						"<style type='text/css'> .mapStyle" + width
+								+ "{ height:500px; width:" + mapWidth
+								+ "px;} </style>").appendTo("head");
+
+				mapExpandClass = "mapStyleExpand" + width;
+				$(
+						"<style type='text/css'> .mapStyleExpand" + width
+								+ "{ height:585px; width:" + mapExpandWidth
+								+ "px;} </style>").appendTo("head");
+
+			}
+
+			$(window)
+					.resize(
+							function() {
+								setMapSize();
+								if (prevMapClass) {
+									$("." + prevMapClass).addClass(mapClass);
+									if (prevMapClass != mapClass)
+										$("." + prevMapClass).removeClass(
+												prevMapClass);
+									prevMapClass = mapClass;
+								}
+								if (prevMapExpandClass) {
+									$("." + prevMapExpandClass).addClass(
+											mapExpandClass);
+									if (prevMapExpandClass != mapExpandClass)
+										$("." + prevMapExpandClass)
+												.removeClass(prevMapExpandClass);
+									prevMapExpandClass = mapExpandClass;
+								}
+								for ( var i in mapHash) {
+									var map = mapHash[i];
+									var currCenter = map.getCenter();
+									google.maps.event.trigger(map, "resize");
+									map.setCenter(currCenter);
+
+								}
+							});
 
 		}
 	};

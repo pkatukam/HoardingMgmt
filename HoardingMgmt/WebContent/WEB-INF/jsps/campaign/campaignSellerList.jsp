@@ -63,8 +63,7 @@
 					<tbody>
 						<c:if test="${not empty campaignList}">
 							<c:forEach var="campaign" items="${campaignList}">
-								<tr class='clickable-row'
-									data-href='${pageContext.request.contextPath}/viewSellerCampaignDetails/campaignId/${campaign.campaignId}'>
+								<tr class='clickable-row' id='${campaign.campaignId}'>
 									<td>${campaign.campaignId}</td>
 									<td>${campaign.campaignTitle}</td>
 									<td>${campaign.buyerName}</td>
@@ -87,10 +86,16 @@
 		jQuery(document).ready(function() {
 			// initiate layout and plugins
 			$(".clickable-row").click(function() {
-				window.document.location = $(this).data("href");
+				var campaignId = this.id;
+				var url = ctx + "/openCampaignDetails";
+				var data = {
+					"campaignId" : campaignId
+				};
+				$.post(url, data).done(function(status) {
+					//alert(status);
+					window.location = ctx + status;
+				});
 			});
-
-			TableAdvanced.init();
 		});
 	</script>
 

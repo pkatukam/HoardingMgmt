@@ -194,8 +194,15 @@
 	src="${pageContext.request.contextPath}/static/pages/scripts/ui-toastr.js"></script>
 <script
 	src="${pageContext.request.contextPath}/static/global/plugins/taffydb-master/taffy.js"></script>
-
-
+<script
+	src="${pageContext.request.contextPath}/static/scripts/commonUtil.js"
+	type="text/javascript"></script>
+<script
+	src="${pageContext.request.contextPath}/static/scripts/dashboardForSeller.js"
+	type="text/javascript"></script>
+<script
+	src="${pageContext.request.contextPath}/static/scripts/dashboardForBuyer.js"
+	type="text/javascript"></script>
 <!-- END PAGE LEVEL PLUGINS -->
 
 <script>

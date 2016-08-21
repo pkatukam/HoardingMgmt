@@ -56,6 +56,7 @@ public class MarkerGalleryDAO {
 				logger.info(imageFiles[i].getOriginalFilename());
 				logger.info(imageFiles[i].getSize());
 				final MultipartFile file = imageFiles[i];
+				final float markerId =  marker.getMarkerId();
 				jdbcTemplate
 						.execute(
 								"Insert into marker_gallery (markerId, imageFile) values (?, ?)",

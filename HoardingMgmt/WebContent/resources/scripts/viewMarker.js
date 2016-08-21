@@ -13,7 +13,8 @@ var ViewMarker = function() {
 		var db;
 		var cat_db;
 		var cityData = {
-			"cityId" : cityId
+			"cityId" : cityId,
+			"view" : "list"
 		};
 		var table = $('#marker_editable');
 		var table = $('#marker_editable');
@@ -92,7 +93,7 @@ var ViewMarker = function() {
 		$("#reset").click(function() {
 			resetForm();
 		});
-		
+
 		$("#resetFilters").click(function() {
 			resetFilters();
 		});
@@ -303,10 +304,16 @@ var ViewMarker = function() {
 		}
 		toastr.success("Please click on the map to add the marker. ",
 				"Add the Marker");
+		var mapClass;
+		var prevMapClass;
 
 		var cityId = $("#cityId").val();
 		var cityName = $("#cityName").val();
 		var markerCount = 0;
+		setMapSize();
+		$("#map-add-marker").addClass(mapClass);
+		prevMapClass = mapClass;
+
 		createMap(cityName);
 		var marker;
 		var marker_removed = true;
@@ -392,21 +399,14 @@ var ViewMarker = function() {
 						lat : record["latitude"],
 						lng : record["longitude"]
 					};
-					var categoryColor = [ "C03134", "1BBC9B", "48308B",
-							"E87E04", "f59c7b", "a57fb5", "a294bb", "9A12B3",
-							"c49f47", "444444", "FFFFFF", "67c6bf", "fafafa",
-							"cb5a5e", "E08283", "e35b5a" ];
-					var newMarkerImage1 = new google.maps.MarkerImage(
-							"http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|"
-									+ categoryColor[record["categoryId"]],
-							new google.maps.Size(21, 34),
-							new google.maps.Point(0, 0), new google.maps.Point(
-									10, 34));
-
+					var markerImage = "./static/scripts/icons/markers/categories/"
+						+ record["categoryId"] + ".png";
+					//alert(newMarker);
 					var marker_db = new google.maps.Marker({
 						position : location,
 						map : map,
-						icon : newMarkerImage1,
+						optimized : false,
+						icon : markerImage
 					});
 					markers.push(marker_db);
 					addClickFunction(marker_db, record);
@@ -553,22 +553,14 @@ var ViewMarker = function() {
 									lat : record["latitude"],
 									lng : record["longitude"]
 								};
-								var categoryColor = [ "C03134", "1BBC9B",
-										"48308B", "E87E04", "f59c7b", "a57fb5",
-										"a294bb", "9A12B3", "c49f47", "444444",
-										"FFFFFF", "67c6bf", "fafafa", "cb5a5e",
-										"E08283", "e35b5a" ];
-								var newMarkerImage1 = new google.maps.MarkerImage(
-										"http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|"
-												+ categoryColor[record["categoryId"]],
-										new google.maps.Size(21, 34),
-										new google.maps.Point(0, 0),
-										new google.maps.Point(10, 34));
-
+									
+								var markerImage = "./static/scripts/icons/markers/categories/"
+									+ record["categoryId"] + ".png";
+								
 								var marker_db = new google.maps.Marker({
 									position : location,
 									map : map,
-									icon : newMarkerImage1,
+									icon : markerImage,
 								});
 								markers.push(marker_db);
 								addClickFunction(marker_db, record);
@@ -580,15 +572,14 @@ var ViewMarker = function() {
 
 			// This event listener calls addMarker() when the map is
 			// clicked.
-			//Add Marker Functionality
-			/*google.maps.event.addListener(map, 'click', function(event) {
-				editAlertActionGeneral();
-				disableEditActions();
-				resetForm();
-				addMarker(geocoder, event.latLng, map);
-				unHighlightPrevMarkerForEdit();
-			});*/
-	
+			// Add Marker Functionality
+			/*
+			 * google.maps.event.addListener(map, 'click', function(event) {
+			 * editAlertActionGeneral(); disableEditActions(); resetForm();
+			 * addMarker(geocoder, event.latLng, map);
+			 * unHighlightPrevMarkerForEdit(); });
+			 */
+
 		}
 
 		function addMarker(geocoder, location, map) {
@@ -681,7 +672,7 @@ var ViewMarker = function() {
 		}
 
 		function resetForm() {
-			alert("reset");
+			//alert("reset");
 			$(':input', '#marker_form')
 					.not(':button, :submit, :reset, :hidden').val('')
 					.removeAttr('checked').prop('selectedIndex', 0);
@@ -848,14 +839,14 @@ var ViewMarker = function() {
 		}
 
 		function highlightMarkerForEdit(marker, record) {
-			marker.setIcon(editMarkerImage);
+		//	marker.setIcon(editMarkerImage);
 			editMarker = marker;
 			editMarkerData = record;
 		}
 
 		function unHighlightPrevMarkerForEdit() {
 			if (editMarker != null) {
-				editMarker.setIcon(storedMarkerImage);
+				//editMarker.setIcon(storedMarkerImage);
 				// editMarker = null;
 				// editMarkerData = null;
 				formEdited = false;
@@ -1053,10 +1044,13 @@ var ViewMarker = function() {
 						}
 						editMarker = null;
 						marker_removed = true;
+						var markerImage = "./static/scripts/icons/markers/categories/"
+							+ data.categoryId + ".png";
+						
 						var marker_stored = new google.maps.Marker({
 							position : location,
 							map : map,
-							icon : storedMarkerImage
+							icon : markerImage
 						});
 						addClickFunction(marker_stored, data);
 						resetForm();
@@ -1096,6 +1090,47 @@ var ViewMarker = function() {
 			});
 
 		}
+
+		function setMapSize() {
+			var max = 1349;
+			var min = 972;
+			var tempAdd = 0;
+			var height = jQuery(window).height();
+			var width = jQuery(window).width();
+			var mapWidth;
+			windowWidth = width;
+			if (width <= min) {
+				mapWidth = 910 - (min - width);
+				if (width < 768) {
+					mapWidth = mapWidth + 18;
+				} else {
+					mapWidth = mapWidth;
+				}
+			} else {
+				mapWidth = width - 300;
+			}
+
+			mapClass = "mapStyle" + width;
+			$(
+					"<style type='text/css'> .mapStyle" + width
+							+ "{ height:550px; width:" + mapWidth
+							+ "px;} </style>").appendTo("head");
+
+		}
+
+		$(window).resize(function() {
+			setMapSize();
+			if (prevMapClass) {
+				$("." + prevMapClass).addClass(mapClass);
+				if (prevMapClass != mapClass)
+					$("." + prevMapClass).removeClass(prevMapClass);
+				prevMapClass = mapClass;
+			}
+			var currCenter = map.getCenter();
+			google.maps.event.trigger(map, "resize");
+			map.setCenter(currCenter);
+
+		});
 
 	}
 

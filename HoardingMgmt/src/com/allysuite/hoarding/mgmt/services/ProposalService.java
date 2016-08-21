@@ -7,10 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.allysuite.hoarding.mgmt.dao.ProposalDAO;
 import com.allysuite.hoarding.mgmt.domain.Proposal;
+import com.allysuite.hoarding.mgmt.domain.ProposalFeed;
 
 @Service("proposalService")
 public class ProposalService {
-	
+
 	@Autowired
 	private ProposalDAO proposalDao;
 
@@ -22,7 +23,7 @@ public class ProposalService {
 		// TODO Auto-generated method stub
 		return proposalDao.getProposalsByCampaignID(campaignId);
 	}
-	
+
 	public List<Proposal> getAllProposalsForBuyer(int buyerId) {
 		// TODO Auto-generated method stub
 		return proposalDao.getProposalsByBuyerID(buyerId);
@@ -31,5 +32,17 @@ public class ProposalService {
 	public void updateStatusAsRead(String[] proposals) {
 		proposalDao.updateProposalStatusToRead(proposals);
 	}
+
+	public List<ProposalFeed> getProposalFeedsForSeller(int sellerId) {
+		return proposalDao.getProposalFeedsForSeller(sellerId);
+	}
 	
+	public List<ProposalFeed> getProposalFeedsForBuyer(int buyerId) {
+		return proposalDao.getProposalFeedsForBuyer(buyerId);
+	}
+	
+	public boolean updateProposalFetchDate(ProposalFeed proposalFeed) {
+		return proposalDao.updateProposalFetchDate(proposalFeed);
+	}
+
 }

@@ -29,7 +29,10 @@ public class MarkerService {
 		return markerDao.getMarkerBySellerIDAndCityID(sellerId, cityId);
 	}
 
-
+	public List<Marker> getMarkerBySellerIDAndCityIDWithImage(int sellerId, int cityId) {
+		return markerDao.getMarkerBySellerIDAndCityIDWithImage(sellerId, cityId);
+	}
+	
 	public Marker updateMarker(Marker marker) {
 		try {
 			return markerDao.update(marker);

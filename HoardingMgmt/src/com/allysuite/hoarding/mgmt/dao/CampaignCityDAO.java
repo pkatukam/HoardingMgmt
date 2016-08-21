@@ -39,7 +39,8 @@ public class CampaignCityDAO {
 			MapSqlParameterSource cityparams = new MapSqlParameterSource();
 			cityparams.addValue("campaignId", campaign.getCampaignId());
 			cityparams.addValue("cityId", city.getCityId());
-			createString = "Insert into Campaign_Cities(campaignId, cityId) values (:campaignId , :cityId)";
+			cityparams.addValue("campaignCreatedDate", campaign.getCampaignCreatedDate());
+			createString = "Insert into Campaign_Cities(campaignId, cityId, campaignCreatedDate) values (:campaignId , :cityId , :campaignCreatedDate)";
 			if (namedJdbc.update(createString, cityparams) != 1) {
 				return false;
 			}
@@ -108,7 +109,7 @@ public class CampaignCityDAO {
 			if (iterator.hasNext())
 				selectQuery = selectQuery + city.getCityId() + ",";
 			else
-				selectQuery = selectQuery + city.getCityId() + ") group by campaignId";
+				selectQuery = selectQuery + city.getCityId() + ") group by campaignId order by campaignCreatedDate desc";
 		}
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("cities", cities);

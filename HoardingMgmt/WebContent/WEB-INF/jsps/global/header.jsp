@@ -7,7 +7,7 @@
 	<div class="page-header-inner">
 		<!-- BEGIN LOGO -->
 		<div class="page-logo">
-			<a href="#"> <img style="width: 130px; height: 42px;"
+			<a href="${pageContext.request.contextPath}/viewDashboard"> <img style="width: 130px; height: 42px;"
 				src="${pageContext.request.contextPath}/static/layout/img/OH logo - 12-12-15-06.png"
 				alt="logo" class="logo-default" />
 			</a>

@@ -18,7 +18,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -114,26 +113,25 @@ public class MarkerController {
 		}
 	}
 
-	@RequestMapping(value = "/viewCreateMarker/cityId/{cityId}/cityName/{cityName}")
-	public ModelAndView viewCreateMarker(@PathVariable("cityId") int cityId,
-			@PathVariable("cityName") String cityName, Model model,
+	@RequestMapping(value = "/viewCreateMarker")
+	public ModelAndView viewCreateMarker(Model model,
 			HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 		HttpSession session = request.getSession(false);
 		logger.info("===========View Create Marker Start====================");
 		logger.info("viewCreateMarker -- >" + session);
-		if (session == null) {
-			logger.info("viewCreateMarker -- > Session Null");
-			model.addAttribute("login", new Login());
-			model.addAttribute("sessionError");
-			return new ModelAndView("login/login");
-		} else {
+		if (session != null) {
 			logger.info("viewCreateMarker -- > Session Not Null");
 			ModelAndView mv = new ModelAndView("viewCreateMarker");
+			City city = (City) session.getAttribute("openCity");
 			model.addAttribute("marker", new Marker());
-			mv.addObject("MarkerCity", new City(cityId, cityName));
+			mv.addObject("MarkerCity", city);
 			return mv;
 		}
+		logger.info("viewCreateMarker -- > Session Null");
+		model.addAttribute("login", new Login());
+		model.addAttribute("sessionError");
+		return new ModelAndView("login/login");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -147,15 +145,23 @@ public class MarkerController {
 			User user = (User) session.getAttribute("user");
 			logger.info(request.getParameter("cityId"));
 			int cityId = Integer.valueOf(request.getParameter("cityId"));
+			String view = request.getParameter("view");
 			logger.info(cityId);
 			if (user != null) {
-				List<Marker> markerList = markerService
-						.getAllMarkersOfSellerByCityID(
-								((Seller) user).getSellerId(), cityId);
+				List<Marker> markerList;
+				if (view != null && view.equals("list")) {
+					markerList = markerService.getAllMarkersOfSellerByCityID(
+							((Seller) user).getSellerId(), cityId);
+				} else {
+					markerList = markerService
+							.getMarkerBySellerIDAndCityIDWithImage(
+									((Seller) user).getSellerId(), cityId);
+				}
+
 				logger.info("====================================================");
 				logger.info(markerList);
 				logger.info("====================================================");
-				((Seller) user).setMarkers(markerList);
+				// ((Seller) user).setMarkers(markerList);
 				List<Category> categories = (List<Category>) session
 						.getAttribute("Categories");
 				String json = new ObjectMapper().writeValueAsString(markerList);
@@ -172,11 +178,28 @@ public class MarkerController {
 		return "{}";
 	}
 
-	@RequestMapping(value = "/viewMarkerList/cityId/{cityId}/cityName/{cityName}")
-	public ModelAndView viewMarkerList(@PathVariable("cityId") int cityId,
-			@PathVariable("cityName") String cityName, Model model,
-			HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
+	@RequestMapping(value = "/markerCity", method = RequestMethod.POST)
+	public @ResponseBody String viewMarkerCity(HttpServletRequest request)
+			throws JsonParseException, JsonMappingException, IOException {
+		int cityId = Integer.valueOf(request.getParameter("cityId"));
+		String cityName = request.getParameter("cityName");
+		String action = request.getParameter("action");
+		logger.info("*************View Marker City*************" + cityId + " "
+				+ cityName + " " + action);
+		HttpSession session = request.getSession(false);
+		if (session != null || action != null) {
+			City city = new City();
+			city.setCityId(cityId);
+			city.setCityName(cityName.trim());
+			session.setAttribute("openCity", city);
+			return "/" + action;
+		}
+		return "/login";
+	}
+
+	@RequestMapping(value = "/viewMarkerList")
+	public ModelAndView viewMarkerList(Model model, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
 		logger.info("===========View Marker List====================");
 		ModelAndView mv = new ModelAndView("markerList");
 		HttpSession session = request.getSession(false);
@@ -184,14 +207,12 @@ public class MarkerController {
 		if (session != null) {
 			User user = (User) session.getAttribute("user");
 			if (user != null) {
+				City city = (City) session.getAttribute("openCity");
+				int cityId = city.getCityId();
 				logger.info("Marker List");
 				logger.info(cityId);
-				List<Marker> markerList = markerService
-						.getAllMarkersOfSellerByCityID(
-								((Seller) user).getSellerId(), cityId);
-				mv.addObject("markerList", markerList);
 				model.addAttribute("marker", new Marker());
-				mv.addObject("MarkerCity", new City(cityId, cityName));
+				mv.addObject("MarkerCity", city);
 				return mv;
 			}
 		}

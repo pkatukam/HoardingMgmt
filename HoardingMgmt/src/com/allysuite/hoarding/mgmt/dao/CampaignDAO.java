@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -20,15 +21,19 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.allysuite.hoarding.mgmt.commons.CommonUtil;
 import com.allysuite.hoarding.mgmt.domain.Buyer;
 import com.allysuite.hoarding.mgmt.domain.Campaign;
 import com.allysuite.hoarding.mgmt.domain.City;
 import com.allysuite.hoarding.mgmt.domain.Map;
+import com.allysuite.hoarding.mgmt.domain.ProposalFeed;
 import com.allysuite.hoarding.mgmt.domain.Seller;
 
 @Transactional
 @Component("campaignDAO")
 public class CampaignDAO {
+
+	private Logger logger = Logger.getLogger(CampaignDAO.class);
 
 	private JdbcTemplate jdbc;
 	private NamedParameterJdbcTemplate namedJdbc;
@@ -52,6 +57,9 @@ public class CampaignDAO {
 	private BuyerDAO buyerDAO;
 
 	@Autowired
+	private ProposalDAO proposalDAO;
+
+	@Autowired
 	public void setDataSource(DataSource datasource) {
 		this.jdbc = new JdbcTemplate(datasource);
 		this.namedJdbc = new NamedParameterJdbcTemplate(datasource);
@@ -69,6 +77,26 @@ public class CampaignDAO {
 			}
 
 		});
+	}
+
+	public Campaign getCampaignTitleById(int campaignid) {
+		Campaign campaign = new Campaign();
+		campaign.setCampaignId(campaignid);
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("campaignId", campaign.getCampaignId());
+		campaign = namedJdbc
+				.queryForObject(
+						"Select campaignTitle from campaign where campaignId = :campaignId",
+						params, new RowMapper<Campaign>() {
+							public Campaign mapRow(ResultSet rs, int arg1)
+									throws SQLException {
+								Campaign campaign = new Campaign();
+								campaign.setCampaignTitle(rs
+										.getString("campaignTitle"));
+								return campaign;
+							}
+						});
+		return campaign;
 	}
 
 	public Campaign getCampaignById(int campaignid) {
@@ -165,7 +193,7 @@ public class CampaignDAO {
 		BeanPropertySqlParameterSource params = new BeanPropertySqlParameterSource(
 				campaign);
 		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
-		String createString = "Insert into campaign (  campaignTitle, campaignDescription, campaignStartDate, campaignEndDate, campaignRespondBy, buyerId, mediaType, campaignBudget) values ( :campaignTitle, :campaignDescription, :campaignFrom, :campaignTo, :campaignRespondBy, :buyerId, :mediaType, :campaignBudget)";
+		String createString = "Insert into campaign (  campaignTitle, campaignDescription, campaignStartDate, campaignEndDate, campaignRespondBy, buyerId, mediaType, campaignBudget, campaignCreatedDate) values ( :campaignTitle, :campaignDescription, :campaignFrom, :campaignTo, :campaignRespondBy, :buyerId, :mediaType, :campaignBudget, :campaignCreatedDate)";
 		if (namedJdbc.update(createString, params, generatedKeyHolder) == 1) {
 			campaign.setCampaignId(generatedKeyHolder.getKey().intValue());
 			/*** Insert into Campaign Cities ****/
@@ -215,6 +243,7 @@ public class CampaignDAO {
 		campaign.setCampaignRespondBy(rs.getDate("campaignRespondBy"));
 		campaign.setBuyerId(rs.getInt("buyerId"));
 		campaign.setMediaType(rs.getInt("mediaType"));
+		campaign.setCampaignCreatedDate(rs.getDate("campaignCreatedDate"));
 	}
 
 	public List<Campaign> getCampaignBySellerId(int sellerId) {
@@ -285,10 +314,93 @@ public class CampaignDAO {
 								campaign.setCampaignCities(campaignCityDAO
 										.getCitiesForCampaignID(campaign
 												.getCampaignId()));
-								campaign.setMaps(mapDAO.getMapsForProposalCities(campaign
-										.getCampaignId()));
+								campaign.setMaps(mapDAO
+										.getMapsForProposalCities(campaign
+												.getCampaignId()));
 								return campaign;
 							}
 						});
 	}
+
+	public List<Campaign> getCampaignFeedsForSeller(Seller seller) {
+		if (seller != null) {
+			List<City> sellerCities = seller.getCities();
+			if (sellerCities == null || sellerCities.size() == 0) {
+				sellerCities = sellerCityDAO.getAllCitiesForSellerId(seller
+						.getSellerId());
+				seller.setCities(sellerCities);
+			}
+			List<Campaign> campaigns = campaignCityDAO
+					.getAllCampaignsForCities(sellerCities);
+			List<Campaign> campaignList = new ArrayList<Campaign>();
+			for (Iterator<Campaign> iterator = campaigns.iterator(); iterator
+					.hasNext();) {
+				Campaign campaign = iterator.next();
+				campaignList.add(getCampaignFeedDataById(
+						campaign.getCampaignId(), sellerCities));
+			}
+			return campaignList;
+		}
+		return new ArrayList<Campaign>();
+	}
+
+	private Campaign getCampaignFeedDataById(int campaignId,
+			List<City> sellerCities) {
+		Campaign campaign = new Campaign();
+		campaign.setCampaignId(campaignId);
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("campaignId", campaign.getCampaignId());
+		campaign = namedJdbc.queryForObject(
+				"Select * from campaign where campaignId = :campaignId",
+				params, new RowMapper<Campaign>() {
+					public Campaign mapRow(ResultSet rs, int arg1)
+							throws SQLException {
+						Campaign campaign = new Campaign();
+						campaign.setCampaignId(rs.getInt("campaignId"));
+						campaign.setCampaignTitle(rs.getString("campaignTitle"));
+						campaign.setCampaignCreatedDate(rs
+								.getDate("campaignCreatedDate"));
+						return campaign;
+					}
+				});
+		List<City> campaignCities = campaignCityDAO.getCitiesForCampaignID(
+				campaign.getCampaignId(), sellerCities);
+		campaign.setCampaignCities(campaignCities);
+		return campaign;
+	}
+
+	public List<ProposalFeed> getAllCampaignProposalDetailsList(int buyerId) {
+		logger.info("CampaignDAO - getAllCampaignProposalDetailsList "
+				+ buyerId);
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("buyerId", buyerId);
+		return namedJdbc
+				.query("select proposal.campaignId, campaign.campaignTitle, campaign.campaignStartDate, campaign.campaignEndDate,"
+						+ "campaign.campaignRespondBy,count(proposal.proposalId) as totalProposals, count(prop.proposalId) as totalUnViewedProposals "
+						+ "from hoarding_management.campaign campaign, hoarding_management.proposal proposal left join "
+						+ "hoarding_management.proposal prop ON proposal.proposalId = prop.proposalId AND prop.status = 'N' "
+						+ "where campaign.campaignId = proposal.campaignId and campaign.buyerId = :buyerId group by campaign.campaignId "
+						+ "order by campaign.campaignStartDate desc", params,
+						new RowMapper<ProposalFeed>() {
+							public ProposalFeed mapRow(ResultSet rs, int arg1)
+									throws SQLException {
+								ProposalFeed proposalFeed = new ProposalFeed();
+								proposalFeed.setCampaignId(rs
+										.getInt("campaignId"));
+								proposalFeed.setCampaignName(rs
+										.getString("campaignTitle"));
+								proposalFeed.setProposalCount(rs
+										.getInt("totalProposals"));
+								proposalFeed.setUnreadProposalCount(rs
+										.getInt("totalUnViewedProposals"));
+								proposalFeed.setCampaignStatus(CommonUtil.evaluateCampaignStatus(
+										rs.getTimestamp("campaignStartDate"),
+										rs.getTimestamp("campaignEndDate"),
+										rs.getTimestamp("campaignRespondBy")));
+								return proposalFeed;
+							}
+						});
+
+	}
+
 }

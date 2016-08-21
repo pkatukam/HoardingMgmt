@@ -82,8 +82,11 @@ public class LoginController {
 			session.setAttribute("Categories", categories);
 			session.setAttribute("CategoryMap", categoryMap);
 			session.setAttribute("MediaMap", mediaType);
-
-			return new ModelAndView("dashboard");
+			if (user.getUser().equalsIgnoreCase("seller")) {
+				return new ModelAndView("dashboardForSeller");
+			} else {
+				return new ModelAndView("dashboardForBuyer");
+			}
 		}
 	}
 

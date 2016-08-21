@@ -39,8 +39,8 @@ body {
 </style>
 <style>
 .mapStyle {
-	height: 500px;
-	width: 1050px;
+	height: inherit;
+	width: inherit;
 }
 </style>
 
@@ -76,7 +76,27 @@ body {
 	background: #7d7d7d;
 }
 </style>
+<style>
+.mapStyle1350 {
+	height: 500px;
+	width: 1050px;
+}
 
+.mapStyle1250 {
+	height: 500px;
+	width: 950px;
+}
+
+.mapStyle1010 {
+	height: 500px;
+	width: 750px;
+}
+
+.mapStyle400 {
+	height: 500px;
+	width: 400px;
+}
+</style>
 </head>
 <body>
 	<!-- BEGIN CONTENT -->
@@ -197,6 +217,7 @@ body {
 							</div>
 						</div>
 					</form>
+
 				</div>
 				<div class="portlet red box" id="noProposalsErrorDiv" hidden="true">
 					<div class="portlet-title">
@@ -207,8 +228,16 @@ body {
 					<div class="portlet-body">You have recieved no proposals for
 						any of your campaigns yet. Thank you for your patience!!!</div>
 				</div>
+				<div id="loadingDiv" class="portlet box"
+					style="height: 500px; width: 1050px; text-align: center; vertical-align: middle;">
+					<h3 style="margin-top: 250px;">Please wait while we fetch your
+						proposals...</h3>
+					<p style="text-align: center; vertical-align: middle;">
+						<img src="./static/scripts/icons/loading/Preloader_3.gif" alt="" />
+					</p>
+				</div>
 				<table>
-					<tr>
+					<tr hidden="true" id="proposalsTr">
 						<td style="vertical-align: top;">
 							<div id="accordion" class="panel-group"></div>
 						</td>
@@ -223,6 +252,7 @@ body {
 						</td>
 					</tr>
 				</table>
+
 			</div>
 		</div>
 	</div>

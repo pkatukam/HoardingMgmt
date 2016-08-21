@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.allysuite.hoarding.mgmt.dao.CampaignDAO;
 import com.allysuite.hoarding.mgmt.domain.Campaign;
+import com.allysuite.hoarding.mgmt.domain.ProposalFeed;
 import com.allysuite.hoarding.mgmt.domain.Seller;
 
 @Transactional
@@ -50,6 +51,16 @@ public class CampaignService {
 	public List<Campaign> getAllCampaignsHavingProposals(int buyerId) {
 		// TODO Auto-generated method stub
 		return campaignDao.getCampaignsByBuyerIdWithProposals(buyerId);
+	}
+
+	public List<Campaign> getSellerCampaignFeed(Seller user) {
+		// TODO Auto-generated method stub
+		return campaignDao.getCampaignFeedsForSeller(user);
+	}
+
+	public List<ProposalFeed> getAllCampaignProposalDetailsListForBuyer(int buyerId) {
+		// TODO Auto-generated method stub
+		return campaignDao.getAllCampaignProposalDetailsList(buyerId);
 	}
 
 }

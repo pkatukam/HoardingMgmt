@@ -34,4 +34,5 @@
 		classpath:com/allysuite/hoarding/mgmt/config/service-context.xml
 		</param-value>
 	</context-param>
+	
 </web-app>

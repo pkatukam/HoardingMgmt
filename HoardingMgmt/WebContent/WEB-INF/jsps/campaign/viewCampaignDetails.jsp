@@ -1,4 +1,5 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@page
 	import="java.util.*, java.util.HashMap, com.allysuite.hoarding.mgmt.domain.*, com.allysuite.hoarding.mgmt.domain.City, com.allysuite.hoarding.mgmt.domain.Map"%>
 <!DOCTYPE html>
@@ -15,16 +16,10 @@
 <script>
 	var ctx = "${pageContext.request.contextPath}"
 </script>
-<style>
-.mapStyle {
-	height: 500px;
-	width: 500px;
-}
-</style>
 </head>
 <body>
 	<%
-	if (session == null)
+		if (session == null)
 		response.sendRedirect("${pageContext.request.contextPath}/");
 		session.setAttribute("campaign", request.getAttribute("campaign"));
 	%>
@@ -48,12 +43,13 @@
 		<!-- END PAGE HEADER-->
 
 		<div class="row">
-			<div class="col-md-6 col-sm-12" style="height: 100px;">
+			<div class="col-md-6 col-sm-12" id="campaignDetail">
 				<div class="portlet yellow box">
 					<div class="portlet-title">
 						<div class="caption">
 							<i class="fa fa-cogs"></i>Campaign Detail
 						</div>
+
 						<div class="actions">
 							<a href="javascript:;" class="btn btn-default btn-sm"> <i
 								class="fa fa-pencil"></i> Edit
@@ -118,7 +114,7 @@
 										<c:out value='${city.cityName}' />,
 										<%
 											City city = (City) pageContext.getAttribute("city");
-																			cityMap.put(city.getCityId(), city.getCityName());
+																																			cityMap.put(city.getCityId(), city.getCityName());
 										%>
 									</c:forEach>
 								</div>
@@ -144,7 +140,7 @@
 							<div class="col-md-5 name">Description:</div>
 							<div class="col-md-7 value">
 								<c:out value='${campaign.campaignDescription}' />
-								<c:if test="${campaign.campaignDescription.length() < 100 }">
+								<c:if test="${fn:length(campaign.campaignDescription) < 100 }">
 									<br>
 									<br>
 									<br>
@@ -176,7 +172,7 @@
 										<c:out value='${category.categoryName}' />
 										<br>
 									</c:forEach>
-									<c:if test="${campaign.categories.size() < 3 }">
+									<c:if test="${fn:length(campaign.categories) < 3 }">
 										<br>
 										<br>
 									</c:if>
@@ -207,15 +203,15 @@
 								<i class="fa fa-cogs"></i>
 								<%
 									Map map = (Map) pageContext.getAttribute("map");
-																				String cityname = cityMap.get(map.getCityId());
+																																String cityname = cityMap.get(map.getCityId());
 								%>
 								<%=cityname%>
 							</div>
 							<div class="actions">
-								<a href="javascript:;" class="btn btn-default btn-sm"> <i
-									class="fa fa-pencil"></i> Edit
-								</a>
+								<a class="btn btn-sm btn-icon-only btn-default fullscreen"
+									href="javascript:;" id="fullScreen<%=cityname%>"></a>
 							</div>
+
 						</div>
 						<div class="portlet-body">
 							<div id="map-canvas<%=cityname%>" class="mapStyle"></div>
@@ -232,15 +228,15 @@
 								<i class="fa fa-cogs"></i>
 								<%
 									Map map = (Map) pageContext.getAttribute("map");
-																																	String cityname = cityMap.get(map.getCityId());
+																																													String cityname = cityMap.get(map.getCityId());
 								%>
 								<%=cityname%>
 							</div>
 							<div class="actions">
-								<a href="javascript:;" class="btn btn-default btn-sm"> <i
-									class="fa fa-pencil"></i> Edit
-								</a>
+								<a class="btn btn-sm btn-icon-only btn-default fullscreen"
+									href="javascript:;" id="fullScreen<%=cityname%>"></a>
 							</div>
+
 						</div>
 						<div class="portlet-body">
 							<div id="map-canvas<%=cityname%>" class="mapStyle"></div>
@@ -250,10 +246,10 @@
 			</div>
 			<%
 				}
-																							mapCount++;
-																							classCount++;
-																							if (classCount > classList.length)
-																								classCount = 0;
+																									mapCount++;
+																									classCount++;
+																									if (classCount > classList.length)
+																										classCount = 0;
 			%>
 
 		</c:forEach>

@@ -34,7 +34,9 @@ public class MarkerDAO {
 
 	@Autowired
 	private MarkerGalleryDAO markerGalleryDAO;
-	
+
+	@Autowired
+	private ProposalDAO proposalDAO;
 	
 	@Autowired
 	public void setDataSource(DataSource datasource) {
@@ -85,6 +87,26 @@ public class MarkerDAO {
 		return marker;
 	}
 
+	public Marker getBasicMarkerById(int markerid) {
+		System.out.println("Basic Marker Retrieval" + markerid);
+		Marker marker = new Marker();
+		marker.setMarkerId(markerid);
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("markerId", marker.getMarkerId());
+		marker = namedJdbc
+				.queryForObject(
+						"Select markerId, markerName, sellerId, address, rate, availability, categoryId, lighting, height, width, cityId, X(point) AS latitude, Y(point) AS longitude from marker where markerId = :markerId",
+						params, new RowMapper<Marker>() {
+							public Marker mapRow(ResultSet rs, int arg1)
+									throws SQLException {
+								Marker marker = new Marker();
+								getMarkerDetails(rs, marker);
+								return marker;
+							}
+						});
+		return marker;
+	}
+
 	public List<Marker> getMarkersBySellerId(int sellerId) {
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("sellerId", sellerId);
@@ -108,6 +130,7 @@ public class MarkerDAO {
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("markerId", markerId);
 		markerGalleryDAO.delete(markerId);
+		proposalDAO.deleteByMarkerId(markerId);
 		namedJdbc.update("delete from marker where markerId = :markerId",
 				params);
 		return true;
@@ -175,6 +198,45 @@ public class MarkerDAO {
 		params.addValue("cityId", cityId);
 		return namedJdbc
 				.query("Select markerId, markerName, sellerId, address, rate, availability, categoryId, lighting, height, width, cityId, X(point) AS latitude, Y(point) AS longitude from marker where sellerId = :sellerId and cityId = :cityId",
+						params, new RowMapper<Marker>() {
+							public Marker mapRow(ResultSet rs, int arg1)
+									throws SQLException {
+								Marker marker = new Marker();
+								getMarkerDetails(rs, marker);
+								/*List<MarkerGallery> markerGallery = markerGalleryDAO
+										.getImagesForMarker(marker
+												.getMarkerId());
+								marker.setMarkerGallery(markerGallery);*/
+								return marker;
+							}
+						});
+	}
+	
+	public List<Marker> getMarkerBySellerIDAndCityIDWithImage(int sellerId, int cityId) {
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("sellerId", sellerId);
+		params.addValue("cityId", cityId);
+		return namedJdbc
+				.query("Select markerId, markerName, sellerId, address, rate, availability, categoryId, lighting, height, width, cityId, X(point) AS latitude, Y(point) AS longitude from marker where sellerId = :sellerId and cityId = :cityId",
+						params, new RowMapper<Marker>() {
+							public Marker mapRow(ResultSet rs, int arg1)
+									throws SQLException {
+								Marker marker = new Marker();
+								getMarkerDetails(rs, marker);
+								List<MarkerGallery> markerGallery = markerGalleryDAO
+										.getImagesForMarker(marker
+												.getMarkerId());
+								marker.setMarkerGallery(markerGallery);
+								return marker;
+							}
+						});
+	}
+
+	public List<Marker> getMarkersBySellerIDAndProposalExist(int buyerId) {
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("buyerId", buyerId);
+		return namedJdbc
+				.query("Select markerId, markerName, sellerId, address, availability, rate, categoryId, lighting, height, width, cityId, X(point) AS latitude, Y(point) AS longitude from marker where markerId in (select markerId from Proposal where buyerId = :buyerId group by markerId)",
 						params, new RowMapper<Marker>() {
 							public Marker mapRow(ResultSet rs, int arg1)
 									throws SQLException {

@@ -13,12 +13,14 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 
 import com.allysuite.hoarding.mgmt.domain.Message;
 
 @Component("messageDAO")
 public class MessageDAO {
+	
 	private Logger logger = Logger.getLogger(MessageDAO.class);
 
 	private NamedParameterJdbcTemplate namedJdbc;
@@ -31,10 +33,14 @@ public class MessageDAO {
 	public boolean create(Message message) {
 		BeanPropertySqlParameterSource params = new BeanPropertySqlParameterSource(
 				message);
-		return namedJdbc
+		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+		if (namedJdbc
 				.update("Insert into messages ( messageId, proposalId, initiatedBy, message, sentDate) values (:messageId, :proposalId, :initiatedBy, :message, :sentDate)",
-						params) == 1;
-
+						params, generatedKeyHolder) == 1) {
+			message.setMessageId(generatedKeyHolder.getKey().intValue());
+			return true;
+		}
+		return false;
 	}
 
 	protected void getMessageDetails(ResultSet rs, Message message)

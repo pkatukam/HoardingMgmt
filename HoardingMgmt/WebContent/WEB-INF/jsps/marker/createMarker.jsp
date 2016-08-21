@@ -49,11 +49,6 @@ body {
 	z-index: 100;
 }
 
-.mapStyle {
-	height: 590px;
-	width: 1090px;
-}
-
 .stick {
 	position: fixed;
 	top: 0px;
@@ -68,7 +63,7 @@ body {
 		<!-- BEGIN SAMPLE PORTLET CONFIGURATION MODAL FORM-->
 		<%@ include file="../global/portletConfModelForm.jsp"%>
 		<!-- END SAMPLE PORTLET CONFIGURATION MODAL FORM-->
-		<div id="map-add-marker" class="mapStyle"></div>
+		<div id="map-add-marker"></div>
 
 	</div>
 	<div id="slideout">

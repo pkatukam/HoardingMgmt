@@ -146,7 +146,7 @@ public class CoardinateDAO {
 	}
 
 	private List<Coardinate> convertPolygonIntoCoordinates(Coardinate coardinate) {
-		ArrayList<Coardinate> polylist = new ArrayList<>();
+		ArrayList<Coardinate> polylist = new ArrayList<Coardinate>();
 
 		String[] parts = coardinate.getPolygonStr().replace("POLYGON((", "")
 				.replace("))", "").split("(?<!\\\\),");

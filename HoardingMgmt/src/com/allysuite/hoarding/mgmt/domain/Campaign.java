@@ -18,6 +18,7 @@ public class Campaign {
 	private Date campaignRespondBy;
 	private int buyerId;
 	private String buyerName;
+	private Date campaignCreatedDate;
 
 	public String getBuyerName() {
 		return buyerName;
@@ -165,6 +166,15 @@ public class Campaign {
 
 	public void setBuyerId(int buyerId) {
 		this.buyerId = buyerId;
+	}
+
+	public Date getCampaignCreatedDate() {
+		return campaignCreatedDate;
+	}
+
+	@JsonDeserialize(using = CustomJsonDateDeserializer.class)
+	public void setCampaignCreatedDate(Date campaignCreatedDate) {
+		this.campaignCreatedDate = campaignCreatedDate;
 	}
 
 }

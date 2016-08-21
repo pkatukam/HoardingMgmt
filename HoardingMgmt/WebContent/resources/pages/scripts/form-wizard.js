@@ -901,14 +901,14 @@ var FormWizard = function() {
 						"maps" : mapData
 						};
 				var data2 = {"jsonString" :  JSON.stringify(data) };
-				alert('Finished! Hope you like it :)');
+				//alert('Finished! Hope you like it :)');
 				var str = $('#submit_form').attr("action");
 				var model = $( "#submit_form" ).serialize();
 				$.post(str, data2).done(function( data ) {
 					if (data) {
 					    window.location = ctx + data;
 					} else {
-						
+						alert("There was some technical error while creating Campaign. Please report!")
 					}
 				  });
 			}).hide();

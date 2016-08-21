@@ -1,7 +1,8 @@
 var ViewProposals = function() {
-	
+
 	var handleProposalMap = function() {
 		var activeCampaign = null;
+		var updateMarkers = [];
 		var activeCity = null;
 		var cityChanged;
 		// taffy db representation//
@@ -14,6 +15,7 @@ var ViewProposals = function() {
 		var campaign_data;
 		var marker_data;
 		var proposal_data;
+		var proposalFeed_data;
 		var city_data;
 		var vendor_data;
 		var cityMap = {};
@@ -25,17 +27,26 @@ var ViewProposals = function() {
 		var cityName;
 		var cityId = 0;
 		var isCampaignChanged = false;
+		var isCityChanged = false;
 		var tabCityMap = {};
 		var campaignCityMap = {};
 		var editMarker = null;
 		var prevCategory = null;
 		var buyerId = $("#buyerId").val();
 		var proposalsRead = {};
-		var categoryColor = [ "C03134", "1BBC9B", "48308B", "E87E04", "f59c7b",
-				"a57fb5", "a294bb", "9A12B3", "c49f47", "444444", "FFFFFF",
-				"67c6bf", "fafafa", "cb5a5e", "E08283", "e35b5a" ];
 		var isScheduled = false;
 
+		// FILTERS
+		var lightingVals = [];
+		var mediaCategoryVals = [];
+		var rate = 0;
+		var height = 0;
+		var width = 0;
+
+		var mapClass;
+		var prevMapClass;
+
+		// showProgress();
 		$('div.expandingArea').each(function() {
 			var area = $('textarea', $(this));
 			var span = $('span', $(this));
@@ -51,6 +62,7 @@ var ViewProposals = function() {
 		getProposals();
 
 		function getProposals() {
+			proposalFeed_data = null;
 			jQuery.ajaxSettings.traditional = true;
 			var proposals = Object.keys(proposalsRead);
 			var data = {
@@ -63,27 +75,16 @@ var ViewProposals = function() {
 					if (proposal_data.length == 0) {
 						$("#noProposalsErrorDiv").show();
 					} else {
-						// alert("test");
 						var body = $('body');
 						var sidebar = $('.page-sidebar');
 						var sidebarMenu = $('.page-sidebar-menu');
-						$(".sidebar-search", sidebar).removeClass("open");
-						body.addClass("page-sidebar-closed");
-						sidebarMenu.addClass("page-sidebar-menu-closed");
-						if (body.hasClass("page-sidebar-fixed")) {
-							sidebarMenu.trigger("mouseleave");
-						}
-						// if ($.cookie) {
-						// $.cookie('sidebar_closed', '1');
-						// }
-						$(window).trigger('resize');
+						var k = 0;
 						$("#noProposalsErrorDiv").hide();
-						campaign_data = data.campaigns;
 						marker_data = data.markers;
 						city_data = data.cities;
 						vendor_data = data.sellers;
 						category_data = data.categories;
-
+						proposalFeed_data = data.proposalFeed;
 						campaign_db = TAFFY(data.campaigns);
 						marker_db = TAFFY(data.markers);
 						proposal_db = TAFFY(data.proposals);
@@ -97,22 +98,21 @@ var ViewProposals = function() {
 					alert("failure");
 				}
 			});
-			setTimeout(getProposals_Scheduled, 20000);
+			// Get Proposals after every 60 Seconds.
+			setTimeout(getProposals_Scheduled, 60000);
 		}
 
 		function getProposals_Scheduled() {
 			isScheduled = true;
-
 			getProposals();
 			// isScheduled = false;
 		}
 
 		function createProposalMap() {
-			// alert(isScheduled);
 			createCampaignNavigationBar();
-			// alert(isScheduled);
 			createTabsForCities();
-			// alert(isScheduled);
+			$("#proposalsTr").show();
+			$("#loadingDiv").hide();
 			isScheduled = false;
 			proposalsRead = {};
 
@@ -120,190 +120,30 @@ var ViewProposals = function() {
 
 		function createCampaignNavigationBar() {
 			var selectDb = campaign_db();
-			var styles = [ "panel-success", "panel-danger", "panel-info" ];
-			var stylesCount = 0;
 			var accordion = $("#accordion");
 			$(accordion).empty();
+			if (proposalFeed_data != null) {
+				var campaignId = proposalFeed_data.campaignId;
+				activeCampaign = campaign_db({
+					"campaignId" : campaignId
+				}).first();
+			}
 			selectDb
 					.each(function(record, recordnumber) {
 						campaignId = (record["campaignId"]);
 						campaignName = (record["campaignTitle"]);
-						// var campaign
-						var navPannel = $("<div />").appendTo(accordion);
-						$(navPannel).addClass("panel " + styles[stylesCount]);
-						stylesCount++;
-						if (stylesCount == styles.length)
-							stylesCount = 0;
-						var navPanelHeadingDiv = $("<div />").appendTo(
-								navPannel);
-						$(navPanelHeadingDiv).addClass("panel-heading");
-						var navPanelTitleH4 = $("<h4 />").appendTo(
-								navPanelHeadingDiv);
-						$(navPanelTitleH4).addClass("panel-title");
-						var anchorTag = $("<a />", {
-							id : "campaignAnchor_" + campaignId,
-							"data-toggle" : "collapse",
-							"data-parent" : "#accordion",
-							href : "#collapse" + campaignId
-						})
-								.click(
-										function() {
-											var campaignIdChanged = (this.id)
-													.replace('campaignAnchor_',
-															'');
-											isCampaignChanged = true;
-											activeCampaign = campaign_db(
-													{
-														"campaignId" : parseInt(campaignIdChanged)
-													}).first();
-											createTabsForCities();
-											formSlideOut();
-										}).appendTo(navPanelTitleH4);
-						$(anchorTag).text(campaignName);
-						$(anchorTag).addClass("collapsed");
 
-						var navPanelCollapseDiv = $("<div />", {
-							id : "collapse" + campaignId
-						}).appendTo(navPannel);
-						$(navPanelCollapseDiv).addClass("panel-collapse");
-						// alert(isScheduled);
-
-						if (isScheduled) {
-							if (activeCampaign["campaignId"] == record["campaignId"]) {
-								$(navPanelCollapseDiv).addClass("in");
+						if (!isScheduled) {
+							if (activeCampaign != null) {
+								if (activeCampaign["campaignId"] == record["campaignId"]) {
+									activeCampaign = record;
+								}
 							} else {
-								$(navPanelCollapseDiv).addClass("collapse");
-							}
-						} else {
-							if (recordnumber == 0) {
-								$(navPanelCollapseDiv).addClass("in");
-								activeCampaign = record;
-							} else {
-								$(navPanelCollapseDiv).addClass("collapse");
+								if (recordnumber == 0) {
+									activeCampaign = record;
+								}
 							}
 						}
-						var navPanelBody = $("<div />").css({
-							id : "navPannel" + campaignId,
-							height : "300px",
-							overflow : "auto"
-						}).appendTo(navPanelCollapseDiv);
-						$(navPanelBody).addClass("panel-body");
-
-						var paraElement = $("<p />").appendTo(navPanelBody);
-						var spanElementTitle = $("<span />").css({
-							"text-decoration" : "underline",
-							"font-weight" : "bold"
-						}).appendTo(paraElement);
-						$(spanElementTitle).text("Campaign#");
-						var spanElementValue = $("<span />").css({
-							"word-wrap" : "break-word"
-						}).appendTo(paraElement);
-						$(spanElementValue)
-								.text(" : " + (record["campaignId"]));
-
-						paraElement = $("<p />").appendTo(navPanelBody);
-						spanElementTitle = $("<span />").css({
-							"text-decoration" : "underline",
-							"font-weight" : "bold"
-						}).appendTo(paraElement);
-						$(spanElementTitle).text("Title");
-						spanElementValue = $("<span />").css({
-							"word-wrap" : "break-word"
-						}).appendTo(paraElement);
-						$(spanElementValue).text(
-								" : " + (record["campaignTitle"]));
-
-						paraElement = $("<p />").appendTo(navPanelBody);
-						spanElementTitle = $("<span />").css({
-							"text-decoration" : "underline",
-							"font-weight" : "bold"
-						}).appendTo(paraElement);
-						$(spanElementTitle).text("Start");
-						spanElementValue = $("<span />").css({
-							"word-wrap" : "break-word"
-						}).appendTo(paraElement);
-						$(spanElementValue).text(
-								" : " + (record["campaignFrom"]));
-
-						paraElement = $("<p />").appendTo(navPanelBody);
-						spanElementTitle = $("<span />").css({
-							"text-decoration" : "underline",
-							"font-weight" : "bold"
-						}).appendTo(paraElement);
-						$(spanElementTitle).text("End");
-						spanElementValue = $("<span />").css({
-							"word-wrap" : "break-word"
-						}).appendTo(paraElement);
-						$(spanElementValue)
-								.text(" : " + (record["campaignTo"]));
-
-						paraElement = $("<p />").appendTo(navPanelBody);
-						spanElementTitle = $("<span />").css({
-							"text-decoration" : "underline",
-							"font-weight" : "bold"
-						}).appendTo(paraElement);
-						$(spanElementTitle).text("Respond");
-						spanElementValue = $("<span />").css({
-							"word-wrap" : "break-word"
-						}).appendTo(paraElement);
-						$(spanElementValue).text(
-								" : " + (record["campaignRespondBy"]));
-
-						paraElement = $("<p />").appendTo(navPanelBody);
-						spanElementTitle = $("<span />").css({
-							"text-decoration" : "underline",
-							"font-weight" : "bold"
-						}).appendTo(paraElement);
-						$(spanElementTitle).text("Budget");
-						spanElementValue = $("<span />").css({
-							"word-wrap" : "break-word"
-						}).appendTo(paraElement);
-						$(spanElementValue).text(
-								" : " + (record["campaignBudget"]));
-
-						paraElement = $("<p />").appendTo(navPanelBody);
-						spanElementTitle = $("<span />").css({
-							"text-decoration" : "underline",
-							"font-weight" : "bold"
-						}).appendTo(paraElement);
-						$(spanElementTitle).text("Cities");
-						spanElementValue = $("<span />").css({
-							"word-wrap" : "break-word"
-						}).appendTo(paraElement);
-						var str = "<br>";
-						var cities = (record["campaignCities"]);
-						for (var i = 0; i < cities.length; i++) {
-							str = str + cities[i].cityName + "<br>";
-						}
-						$(spanElementValue).html(" : " + str);
-
-						paraElement = $("<p />").appendTo(navPanelBody);
-						spanElementTitle = $("<span />").css({
-							"text-decoration" : "underline",
-							"font-weight" : "bold"
-						}).appendTo(paraElement);
-						$(spanElementTitle).text("Categories");
-						spanElementValue = $("<span />").css({
-							"word-wrap" : "break-word"
-						}).appendTo(paraElement);
-						str = "<br>";
-						var categories = (record["categories"]);
-						for (var i = 0; i < categories.length; i++) {
-							str = str + categories[i].categoryName + "<br>";
-						}
-
-						$(spanElementValue).html(" : " + str);
-						paraElement = $("<p />").appendTo(navPanelBody);
-						spanElementTitle = $("<span />").css({
-							"text-decoration" : "underline",
-							"font-weight" : "bold"
-						}).appendTo(paraElement);
-						$(spanElementTitle).text("Description");
-						spanElementValue = $("<span />").css({
-							"word-wrap" : "break-word"
-						}).appendTo(paraElement);
-						$(spanElementValue).text(
-								" : " + (record["campaignDescription"]));
 					});
 
 		}
@@ -313,7 +153,6 @@ var ViewProposals = function() {
 				activeCampaign = campaign_db().first();
 			}
 			campaignId = activeCampaign["campaignId"];
-			// alert("CampaignId" + campaignId);
 			var activeProposalsDb = null;
 			activeProposalsDb = proposal_db({
 				campaignId : campaignId
@@ -336,7 +175,6 @@ var ViewProposals = function() {
 						$("#tabPane_" + cityId).show();
 					}
 					if (isCampaignChanged || isScheduled) {
-						// alert("Hrre");
 						activeCity = city_db({
 							cityId : cityId
 						}).first();
@@ -371,6 +209,7 @@ var ViewProposals = function() {
 						href : "#tabPane_" + cityId
 					}).click(function() {
 						cityChanged = (this.id).replace('tabAnchor_', '');
+						isCityChanged = true;
 						activeCity = city_db({
 							cityId : parseInt(cityChanged)
 						}).first();
@@ -385,13 +224,11 @@ var ViewProposals = function() {
 						$(divTabPane).addClass("tab-pane active");
 					else
 						$(divTabPane).addClass("tab-pane");
+					setMapSize();
 					var mapCanvasPane = $("<div />", {
 						id : "map-canvas" + cityId
-					}).css({
-						height : "500px",
-						width : "1050px"
 					}).appendTo(divTabPane);
-					$(mapCanvasPane).addClass("map-pane");
+					$(mapCanvasPane).addClass(mapClass);
 					if (i == 0) {
 						createMap();
 					}
@@ -403,22 +240,18 @@ var ViewProposals = function() {
 		}
 
 		function createMap() {
-			// alert("createMap");
 			var map;
 			cityId = activeCity["cityId"];
 			cityName = activeCity["cityName"];
-			// alert(cityMap[cityId] + cityId + " " + cityName);
-			// alert(cityId + cityName);
 			if (cityMap[cityId]) {
 				map = cityMap[cityId];
-				// alert(isCampaignChanged + campaignCityMap[cityId] + cityId);
 				var campaignId = activeCampaign["campaignId"];
-				if (isCampaignChanged
-						|| (!isCampaignChanged && campaignCityMap[cityId] != campaignId)
-						|| isScheduled) {
-					// alert("Hello");
+				// alert("Create Map" + map + isCampaignChanged + " " +
+				// campaignCityMap[cityId] + campaignId + " " + isScheduled);
+				if (isCityChanged || isScheduled) {
+					// alert("1");
 					campaignCityMap[cityId] = campaignId;
-					isCampaignChanged = false;
+					isCityChanged = false;
 					var allShapes = cityShapes[cityId];
 					if (allShapes) {
 						for (var i = 0; i < allShapes.length; i++) {
@@ -427,11 +260,11 @@ var ViewProposals = function() {
 					}
 					var allMarkers = cityMarkers[cityId];
 					if (allMarkers) {
-						for (var i = 0; i < allMarkers.length; i++) {
+						for (var i = 0; allMarkers[i] && i < allMarkers.length; i++) {
 							allMarkers[i].setMap(null);
 						}
 					}
-					createMarkersOnMap(cityId, map);
+					createMarkersOnMap(false);
 				}
 			} else {
 				map = new google.maps.Map(document.getElementById('map-canvas'
@@ -461,53 +294,164 @@ var ViewProposals = function() {
 
 				});
 				cityMap[cityId] = map;
-				createMarkersOnMap(cityId, map);
+				createMarkersOnMap(false);
 			}
 
 		}
 
-		function createMarkersOnMap(cityId, map, isOld) {
+		$('input[name="lighting_filter"]').change(function() {
+			lightingVals = [];
+			$('input[name="lighting_filter"]:checked').each(function() {
+				lightingVals.push(this.value);
+			});
+			// alert(lightingVals);
+			createMarkersOnMap(true);
+		});
+
+		$('input[name="mediaCategory_filter"]').change(function() {
+			mediaCategoryVals = [];
+			$('input[name="mediaCategory_filter"]:checked').each(function() {
+				mediaCategoryVals.push(parseInt(this.value));
+			});
+			// alert("mediaCategory" + mediaCategoryVals);
+			createMarkersOnMap(true);
+		});
+
+		$('input[name="rate_filter"]')
+				.change(
+						function() {
+							rate = 0
+							var selected = $("input[type='radio'][name='rate_filter']:checked");
+							if (selected.length > 0) {
+								rate = selected.val();
+							}
+							createMarkersOnMap(true);
+						});
+
+		$('input[name="height_filter"]').change(function() {
+			height = 0;
+			height = $('input[name="height_filter"]').val();
+			// alert("height" + height);
+			createMarkersOnMap(true);
+		});
+
+		$('input[name="width_filter"]').change(function() {
+			width = 0
+			width = $('input[name="width_filter"]').val();
+			// alert("width" + width);
+			createMarkersOnMap(true);
+		});
+
+		$("#resetFilters").click(function() {
+			resetFilters();
+		});
+
+		function resetFilters() {
+			$('#height_filter').val('');
+			$('#width_filter').val('');
+			$('input[name="mediaCategory_filter"]:checked').each(function() {
+				$(this).prop('checked', false);
+				$.uniform.update(this);
+			});
+			$('input[name="lighting_filter"]:checked').each(function() {
+				$(this).prop('checked', false);
+				$.uniform.update(this);
+			});
+			$('input[name="rate_filter"]:checked').each(function() {
+				$(this).prop('checked', false);
+				$.uniform.update(this);
+			});
+			mediaCategoryVals = [];
+			lightingVals = [];
+			rate = 0;
+			height = 0;
+			width = 0;
+
+			createMarkersOnMap(true);
+		}
+
+		function createMarkersOnMap(isFilterCall) {
+			// alert("createMarkersOnMap" + cityId);
 			var allMarkers = [];
 			var campaignId = activeCampaign["campaignId"];
+			var cityId = activeCity["cityId"];
 			campaignCityMap[cityId] = campaignId;
+			var map = cityMap[cityId];
 			var select = null;
+			if (lightingVals.length == 0)
+				lightingVals = [ "L", "N" ];
+
 			select = proposal_db({
 				campaignId : campaignId,
 				cityId : cityId
 			});
+			deleteAllMarkers();
 			select
 					.each(function(record, recordnumber) {
-						var markerId = record["markerId"];
-						var selectDb = marker_db({
-							markerId : markerId
-						}).first();
-						var location = {
-							lat : selectDb["latitude"],
-							lng : selectDb["longitude"]
-						};
-						// var markerReadCookie = $.cookie("proposalRead");
-						// alert(markerReadCookie);
-						var newMarker = "http://localhost:8080/HoardingMgmt/static/scripts/icons/rsz_1rsz_1rsz_star_gold_256.png";
-						var proposalStatus = record["status"];
-						if (proposalStatus != 'N') {
-							newMarker = new google.maps.MarkerImage(
-									"http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|"
-											+ categoryColor[selectDb["categoryId"]],
-									new google.maps.Size(21, 34),
-									new google.maps.Point(0, 0),
-									new google.maps.Point(10, 34));
-						}
+						// alert("Inside create markerb loop " );
 
-						var marker = new google.maps.Marker({
-							position : location,
-							map : map,
-							icon : newMarker
-						});
-						allMarkers.push(marker);
-						addClickFunction(marker, selectDb);
+						var markerId = record["markerId"];
+						var selectDb;
+						if (mediaCategoryVals.length == 0) {
+							selectDb = marker_db({
+								markerId : markerId,
+								lighting : lightingVals,
+								rate : {
+									gte : rate
+								},
+							}).first();
+						} else {
+							selectDb = marker_db({
+								markerId : markerId,
+								lighting : lightingVals,
+								categoryId : mediaCategoryVals,
+								rate : {
+									gte : rate
+								},
+							}).first();
+						}
+						if (selectDb) {
+							if ((width == 0 && height == 0)
+									|| (height > 0 && width > 0
+											&& height == selectDb["height"] && width == selectDb["width"])
+									|| (height > 0 && width == 0 && height == selectDb["height"])
+									|| (width > 0 && height == 0 && width == selectDb["width"])) {
+								var location = {
+									lat : selectDb["latitude"],
+									lng : selectDb["longitude"]
+								};
+								var newMarker = "./static/scripts/icons/markers/categories/"
+										+ selectDb["categoryId"];
+								var proposalStatus = record["status"];
+								if (proposalStatus != 'N') {
+									newMarker = newMarker + ".png";
+								} else {
+									newMarker = newMarker + ".gif";
+								}
+
+								var marker = new google.maps.Marker({
+									position : location,
+									map : map,
+									optimized : false,
+									icon : newMarker
+								});
+								updateMarkers.push(marker);
+								allMarkers.push(marker);
+								addClickFunction(marker, selectDb);
+							}
+						}
 					});
 			cityMarkers[cityId] = allMarkers;
-			createCampaignShapes(cityId, map);
+			if (!isFilterCall)
+				createCampaignShapes(cityId, map);
+		}
+
+		function deleteAllMarkers() {
+			// alert("Delete all Markers");
+			for (var i = 0; i < updateMarkers.length; i++) {
+				updateMarkers[i].setMap(null);
+			}
+			updateMarkers = [];
 		}
 
 		function addClickFunction(marker, record) {
@@ -523,8 +467,7 @@ var ViewProposals = function() {
 		}
 
 		function restoreDBData(marker, record) {
-			// alert("clicked - 1");
-			unHighlightPrevMarkerForEdit();
+			// unHighlightPrevMarkerForEdit();
 			highlightMarkerForEdit(marker, record);
 			formSlideIn();
 			$("proposalAnchor").addClass("in");
@@ -616,9 +559,7 @@ var ViewProposals = function() {
 			} else {
 				$("#sideImagePannel").show();
 				for (var j = 0; j < markerGallery.length; j++) {
-					// alert("inside");
 					var id = "DBid" + markerGallery[j].markerGalleryId;
-					// alert("added" + id);
 					var divContent = $("<div />", {
 						id : 'div' + id
 					}).css({
@@ -681,9 +622,12 @@ var ViewProposals = function() {
 				cityId : record["cityId"]
 			}).first();
 			if (proposalDb["status"] == 'N') {
+				var readMarkerImage = "./static/scripts/icons/markers/categories/"
+						+ record["categoryId"] + ".png";
+				// alert(readMarkerImage);
+				marker.setIcon(readMarkerImage);
 				proposalDb["status"] = 'R';
 				proposalsRead[proposalDb["proposalId"]] = proposalDb["proposalId"];
-				alert(proposalsRead);
 			}
 			paraElement = $("<p />").appendTo(proposalDetails);
 			spanElementTitle = $("<span />").css({
@@ -801,12 +745,11 @@ var ViewProposals = function() {
 		});
 
 		function highlightMarkerForEdit(marker, record) {
-			var editMarkerColor = "C03134";
-			var editMarkerImage = new google.maps.MarkerImage(
-					"http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|"
-							+ editMarkerColor, new google.maps.Size(21, 34),
-					new google.maps.Point(0, 0), new google.maps.Point(10, 34));
-			marker.setIcon(editMarkerImage);
+
+			// var editMarkerImage =
+			// "./static/scripts/icons/markers/categories/"
+			// + record["categoryId"] + ".png";
+			// marker.setIcon(editMarkerImage);
 			editMarker = marker;
 			prevCategory = record["categoryId"];
 		}
@@ -861,22 +804,41 @@ var ViewProposals = function() {
 									proposalId : $("#proposalId").val(),
 									initiatedBy : "b"
 								}
-								$.post(ctx + "/sendMessage", messageData).done(
-										function(messageData) {
-											if (!messageData) {
-												alert("Message Failure!!!");
-											}
-										});
+								$
+										.post(ctx + "/sendMessage", messageData)
+										.done(
+												function(data) {
+													if (!data) {
+														alert("Message Failure!!!");
+													} else {
+														// alert($("#proposalId")
+														// .val());
+														var proposalId = parseInt($(
+																"#proposalId")
+																.val());
+														var proposalDb = proposal_db(
+																{
+																	proposalId : proposalId
+																}).first();
+														var message = $
+																.parseJSON(data);
+														var messages = proposalDb["messages"];
+														messages.push(message);
+
+														proposalDb()
+																.update(
+																		{
+																			"messages" : messages
+																		});
+
+													}
+												});
 							}
 						});
 
 		function unHighlightPrevMarkerForEdit() {
-			var storedMarkerImage = new google.maps.MarkerImage(
-					"http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|"
-							+ categoryColor[prevCategory],
-					new google.maps.Size(21, 34), new google.maps.Point(0, 0),
-					new google.maps.Point(10, 34));
-
+			var storedMarkerImage = "./static/scripts/icons/markers/categories/"
+					+ prevCategory + ".png";
 			if (editMarker != null) {
 				editMarker.setIcon(storedMarkerImage);
 			}
@@ -952,7 +914,6 @@ var ViewProposals = function() {
 		});
 
 		function formSlideIn() {
-			// alert("clicked - 1");
 			$("#slideout").animate({
 				right : '0px'
 			}, {
@@ -971,6 +932,45 @@ var ViewProposals = function() {
 			});
 			$("#viewDiv").show();
 		}
+
+		function setMapSize() {
+			var height = jQuery(window).height();
+			var width = jQuery(window).width();
+			prevMapClass = mapClass;
+			if (width >= 1350) {
+				mapClass = "mapStyle1350";
+			} else if (width >= 1250 && width < 1350) {
+				mapClass = "mapStyle1250";
+			} else if (width >= 1010 && width < 1250) {
+				mapClass = "mapStyle1010";
+			} else {
+			//	alert("The device with resolution less than 760 x 667 not supported for this site! The site may not be rendered as expected.")
+				mapClass = "mapStyle400";
+			}
+		}
+
+		$(window).resize(
+				function() {
+					// alert("resize");
+					setMapSize();
+					var campaignId = activeCampaign["campaignId"];
+					var activeProposalsDb = null;
+					activeProposalsDb = proposal_db({
+						campaignId : campaignId
+					});
+					var activeCampaignCityArrays = activeProposalsDb.distinct("cityId");// Returns
+					for (var j = 0; j < activeCampaignCityArrays.length; j++) {
+						$("#map-canvas" + activeCampaignCityArrays[j]).removeClass(prevMapClass);
+						$("#map-canvas" + activeCampaignCityArrays[j]).addClass(mapClass);
+					}
+					for ( var i in cityMap) {
+						// alert("Here" + $("map-canvas" + i));
+						var map = cityMap[i];
+						var currCenter = map.getCenter();
+						google.maps.event.trigger(map, "resize");
+						map.setCenter(currCenter);
+					}
+				});
 
 	}
 

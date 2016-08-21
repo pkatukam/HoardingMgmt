@@ -12,9 +12,12 @@ public class Proposal {
 	private int buyerId;
 	private int sellerId;
 	private int cityId;
+	private City city;
 	private Date createdDate;
 	private int proposalId;
 	private int markerId;
+	private Marker marker;
+	
 	private int campaignId;
 	private BigDecimal price;
 	private String note;
@@ -149,13 +152,30 @@ public class Proposal {
 		this.isSellerAccepted = isSellerAccepted;
 	}
 
+	public City getCity() {
+		return city;
+	}
+
+	public void setCity(City city) {
+		this.city = city;
+	}
+
+	public Marker getMarker() {
+		return marker;
+	}
+
+	public void setMarker(Marker marker) {
+		this.marker = marker;
+	}
+
 	@Override
 	public String toString() {
 		return "Proposal [buyerId=" + buyerId + ", sellerId=" + sellerId
-				+ ", cityId=" + cityId + ", createdDate=" + createdDate
-				+ ", proposalId=" + proposalId + ", markerId=" + markerId
-				+ ", campaignId=" + campaignId + ", price=" + price + ", note="
-				+ note + ", status=" + status + ", availableStartDate="
+				+ ", cityId=" + cityId + ", city=" + city + ", createdDate="
+				+ createdDate + ", proposalId=" + proposalId + ", markerId="
+				+ markerId + ", marker=" + marker + ", campaignId="
+				+ campaignId + ", price=" + price + ", note=" + note
+				+ ", status=" + status + ", availableStartDate="
 				+ availableStartDate + ", availableEndDate=" + availableEndDate
 				+ ", isBuyerAccepeted=" + isBuyerAccepeted
 				+ ", isSellerAccepted=" + isSellerAccepted + ", messages="
