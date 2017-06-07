@@ -10,7 +10,7 @@ import com.allysuite.hoarding.mgmt.domain.Seller;
 
 @Service("sellerService")
 public class SellerService {
-	
+
 	@Autowired
 	private SellerDAO sellerDao;
 
@@ -21,4 +21,17 @@ public class SellerService {
 	public List<Seller> getSentProposalVendors(int buyerId) {
 		return sellerDao.getSellersByBuyerIDWithProposals(buyerId);
 	}
+
+	public List<Seller> getSentProposalVendors(int buyerId, int campaignId) {
+		return sellerDao.getSellersByBuyerIDWithProposals(buyerId, campaignId);
+	}
+
+	public Seller getSellerByProposalId(int proposalId) {
+		return sellerDao.getSellerByProposalId(proposalId);
+	}
+
+	public Seller getSellerBySellerId(int sellerId) {
+		return sellerDao.getSellerBySellerId(sellerId);
+	}
+
 }

@@ -11,9 +11,43 @@ public class ProposalFeed {
 	 * @see java.lang.Object#toString()
 	 */
 	private int proposalCount;
+	private int proposalId;
+	private String proposalStatus;
+
+	/**
+	 * @return the proposalStatus
+	 */
+	public String getProposalStatus() {
+		return proposalStatus;
+	}
+
+	/**
+	 * @param proposalStatus
+	 *            the proposalStatus to set
+	 */
+	public void setProposalStatus(String proposalStatus) {
+		this.proposalStatus = proposalStatus;
+	}
+
+	/**
+	 * @return the proposalId
+	 */
+	public int getProposalId() {
+		return proposalId;
+	}
+
+	/**
+	 * @param proposalId
+	 *            the proposalId to set
+	 */
+	public void setProposalId(int proposalId) {
+		this.proposalId = proposalId;
+	}
+
 	private int campaignId;
 	private String campaignName;
 	private byte campaignStatus;
+
 	/**
 	 * @return the campaignStatus
 	 */
@@ -22,7 +56,8 @@ public class ProposalFeed {
 	}
 
 	/**
-	 * @param campaignStatus the campaignStatus to set
+	 * @param campaignStatus
+	 *            the campaignStatus to set
 	 */
 	public void setCampaignStatus(byte campaignStatus) {
 		this.campaignStatus = campaignStatus;
@@ -31,6 +66,22 @@ public class ProposalFeed {
 	private Date fetchDateBuyer;
 	List<Proposal> proposals;
 	private int unreadProposalCount;
+	private int acceptedProposalCount;
+
+	/**
+	 * @return the acceptedProposalCount
+	 */
+	public int getAcceptedProposalCount() {
+		return acceptedProposalCount;
+	}
+
+	/**
+	 * @param acceptedProposalCount
+	 *            the acceptedProposalCount to set
+	 */
+	public void setAcceptedProposalCount(int acceptedProposalCount) {
+		this.acceptedProposalCount = acceptedProposalCount;
+	}
 
 	/**
 	 * @return the unreadProposal
@@ -94,15 +145,20 @@ public class ProposalFeed {
 		this.proposals = proposals;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "ProposalFeed [proposalCount=" + proposalCount + ", campaignId="
-				+ campaignId + ", campaignName=" + campaignName
+		return "ProposalFeed [proposalCount=" + proposalCount + ", proposalId="
+				+ proposalId + ", proposalStatus=" + proposalStatus
+				+ ", campaignId=" + campaignId + ", campaignName="
+				+ campaignName + ", campaignStatus=" + campaignStatus
 				+ ", fetchDateBuyer=" + fetchDateBuyer + ", proposals="
-				+ proposals + ", unreadProposalCount=" + unreadProposalCount + "]";
+				+ proposals + ", unreadProposalCount=" + unreadProposalCount
+				+ ", acceptedProposalCount=" + acceptedProposalCount + "]";
 	}
 
 }

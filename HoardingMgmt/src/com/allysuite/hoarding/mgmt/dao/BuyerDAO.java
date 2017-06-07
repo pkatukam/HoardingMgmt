@@ -136,6 +136,26 @@ public class BuyerDAO {
 						});
 	}
 
+	public Buyer getBuyerByProposalId(int proposalId) {
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("proposalId", proposalId);
+
+		return namedJdbc
+				.queryForObject(
+						"Select * from buyer where buyerId =( select buyerId from Proposal where proposalId = :proposalId)",
+						params, new RowMapper<Buyer>() {
+
+							public Buyer mapRow(ResultSet rs, int arg1)
+									throws SQLException {
+								Buyer buyer = new Buyer();
+
+								getBuyerDetails(rs, buyer);
+
+								return buyer;
+							}
+						});
+	}
+
 	private void getBuyerDetails(ResultSet rs, Buyer buyer) throws SQLException {
 		buyer.setBuyerId(rs.getInt("buyerId"));
 		buyer.setFirstName(rs.getString("buyerFirstName"));

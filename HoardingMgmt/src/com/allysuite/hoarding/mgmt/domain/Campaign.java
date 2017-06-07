@@ -5,19 +5,25 @@ import java.util.Date;
 import java.util.List;
 
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import com.allysuite.hoarding.mgmt.commons.CustomJsonDateDeserializer;
+import com.allysuite.hoarding.mgmt.commons.CustomJsonDateSerializer;
 
 public class Campaign {
 	private int campaignId;
 	private String jsonString;
 	private String campaignTitle;
 	private String campaignDescription;
+	@JsonSerialize(using =  CustomJsonDateSerializer.class)
 	private Date campaignFrom;
+	@JsonSerialize(using =  CustomJsonDateSerializer.class)
 	private Date campaignTo;
+	@JsonSerialize(using =  CustomJsonDateSerializer.class)
 	private Date campaignRespondBy;
 	private int buyerId;
 	private String buyerName;
+	@JsonSerialize(using =  CustomJsonDateSerializer.class)
 	private Date campaignCreatedDate;
 
 	public String getBuyerName() {
@@ -110,7 +116,8 @@ public class Campaign {
 	public void setCampaignDescription(String campaignDescription) {
 		this.campaignDescription = campaignDescription;
 	}
-
+	
+	@JsonSerialize(using =  CustomJsonDateSerializer.class)
 	public Date getCampaignFrom() {
 		return campaignFrom;
 	}
@@ -141,7 +148,8 @@ public class Campaign {
 	public void setCampaignFrom(Date campaignFrom) {
 		this.campaignFrom = campaignFrom;
 	}
-
+	
+	@JsonSerialize(using =  CustomJsonDateSerializer.class)
 	public Date getCampaignTo() {
 		return campaignTo;
 	}
@@ -151,6 +159,7 @@ public class Campaign {
 		this.campaignTo = campaignTo;
 	}
 
+	@JsonSerialize(using =  CustomJsonDateSerializer.class)
 	public Date getCampaignRespondBy() {
 		return campaignRespondBy;
 	}

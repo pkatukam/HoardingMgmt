@@ -90,3 +90,4 @@
 <link rel="stylesheet"
 	href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <!-- BEGIN PAGE LEVEL STYLES -->
+<link rel="shortcut icon" href="${pageContext.request.contextPath}/static/global/img/favicon/favicon.ico"/>

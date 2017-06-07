@@ -46,6 +46,7 @@ var Login = function() {
             },
 
             submitHandler: function(form) {
+            	localStorage.clear();
                 form.submit(); // form validation success, call ajax form submit
             }
         });
@@ -53,6 +54,7 @@ var Login = function() {
         $('.login-form input').keypress(function(e) {
             if (e.which == 13) {
                 if ($('.login-form').validate().form()) {
+                	localStorage.clear();
                     $('.login-form').submit(); //form validation success, call ajax form submit
                 }
                 return false;
@@ -253,7 +255,7 @@ var Login = function() {
     return {
         //main function to initiate the module
         init: function() {
-
+        	
             handleLogin();
             handleForgetPassword();
             handleRegister();

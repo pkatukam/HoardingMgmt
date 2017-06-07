@@ -38,8 +38,6 @@ body {
 }
 </style>
 <style>
-
-
 .stick {
 	position: fixed;
 	top: 0px;
@@ -235,7 +233,7 @@ body {
 					</div>
 				</div>
 				<div class="portlet-body" id="mapDiv" hidden="true">
-					<div id="map-add-marker" ></div>
+					<div id="map-add-marker"></div>
 				</div>
 			</div>
 		</div>
@@ -525,6 +523,8 @@ var uploadFiles = [];
 		async defer>
 		
 	</script>
+	<jsp:include page="../global/imageGallery.jsp" />
+	<jsp:include page="../global/loadings.jsp" />
 
 </body>
 </html>

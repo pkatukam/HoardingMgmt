@@ -33,12 +33,11 @@ var FormWizard = function() {
 				return;
 			}
 
-			
-			
 			var form = $('#submit_form');
 			var error = $('.alert-danger', form);
 			var success = $('.alert-success', form);
-
+			
+			
 			form
 					.validate({
 						doNotHideMessage : true, // this option enables to
@@ -141,8 +140,7 @@ var FormWizard = function() {
 						}
 
 					});
-			
-
+		
 			/** Added By Priya START * */
 
 			document.getElementById("number").onblur = function() {
@@ -826,13 +824,13 @@ var FormWizard = function() {
 				
 				
 				 var from = $("#campaignFrom").val();
-				 from = from.split("/").reverse().join("-");
+				// from = from.split("/").reverse().join("-");
 				 var to = $("#campaignTo").val();
-				 to = to.split("/").reverse().join("-");
+				 //to = to.split("/").reverse().join("-");
 				 var respondBy = $("#campaignRespondBy").val();
-				 respondBy = respondBy.split("/").reverse().join("-");
-				 	
+				 //respondBy = respondBy.split("/").reverse().join("-");
 				 
+				 	
 				 var categories = new Array();
 					$('[name="categories"]:checked').each(function(){
 						      categories.push($(this).val());
@@ -843,8 +841,6 @@ var FormWizard = function() {
 						categories_data[category] = cat;
 					}	
 					
-					
-				
 					var cities_arr = new Array();
 					$('#campaignCities :selected').each(function(){
 						cities_arr.push($(this).val());
@@ -886,6 +882,8 @@ var FormWizard = function() {
 						var map_data = {"cityId" : cities_arr[i], "shapes" : shapes};
 						mapData[i] = map_data;
 					}
+					
+					
 							
 			
 					var data = {
@@ -901,16 +899,19 @@ var FormWizard = function() {
 						"maps" : mapData
 						};
 				var data2 = {"jsonString" :  JSON.stringify(data) };
-				//alert('Finished! Hope you like it :)');
+				// alert('Finished! Hope you like it :)');
 				var str = $('#submit_form').attr("action");
 				var model = $( "#submit_form" ).serialize();
-				$.post(str, data2).done(function( data ) {
+			
+				$.post(str, data2).done(function( data ) 
+					 { 
 					if (data) {
-					    window.location = ctx + data;
-					} else {
-						alert("There was some technical error while creating Campaign. Please report!")
-					}
-				  });
+						 window.location = ctx + data; }
+					 else {
+							 alert("There was some technical error while creating Campaign. Please report!") 
+							 } 
+					});
+			
 			}).hide();
 		}
 	};

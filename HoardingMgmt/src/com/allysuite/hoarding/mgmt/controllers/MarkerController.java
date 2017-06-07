@@ -145,19 +145,12 @@ public class MarkerController {
 			User user = (User) session.getAttribute("user");
 			logger.info(request.getParameter("cityId"));
 			int cityId = Integer.valueOf(request.getParameter("cityId"));
-			String view = request.getParameter("view");
+			// /String view = request.getParameter("view");
 			logger.info(cityId);
 			if (user != null) {
 				List<Marker> markerList;
-				if (view != null && view.equals("list")) {
-					markerList = markerService.getAllMarkersOfSellerByCityID(
-							((Seller) user).getSellerId(), cityId);
-				} else {
-					markerList = markerService
-							.getMarkerBySellerIDAndCityIDWithImage(
-									((Seller) user).getSellerId(), cityId);
-				}
-
+				markerList = markerService.getAllMarkersOfSellerByCityID(
+						((Seller) user).getSellerId(), cityId);
 				logger.info("====================================================");
 				logger.info(markerList);
 				logger.info("====================================================");

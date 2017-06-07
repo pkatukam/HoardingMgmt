@@ -169,7 +169,7 @@ public class CampaignDAO {
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("buyerId", buyerId);
 		return namedJdbc.query(
-				"Select * from campaign where buyerId = :buyerId", params,
+				"Select * from campaign where buyerId = :buyerId order by campaignCreatedDate desc", params,
 				new RowMapper<Campaign>() {
 					public Campaign mapRow(ResultSet rs, int arg1)
 							throws SQLException {
@@ -258,7 +258,7 @@ public class CampaignDAO {
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		// params.addValue("buyerId", buyerId);
 		return namedJdbc.query(
-				"Select * from campaign where buyerId = :buyerId", params,
+				"Select * from campaign where buyerId = :buyerId order by campaignCreatedDate desc", params,
 				new RowMapper<Campaign>() {
 					public Campaign mapRow(ResultSet rs, int arg1)
 							throws SQLException {
@@ -294,7 +294,7 @@ public class CampaignDAO {
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("buyerId", buyerId);
 		return namedJdbc
-				.query("Select * from campaign where campaignId in (select campaignId from Proposal where buyerId = :buyerId group by campaignId) order by campaignId desc",
+				.query("Select * from campaign where campaignId in (select campaignId from Proposal where buyerId = :buyerId group by campaignId)order by campaignCreatedDate desc",
 						params, new RowMapper<Campaign>() {
 							public Campaign mapRow(ResultSet rs, int arg1)
 									throws SQLException {
@@ -376,9 +376,11 @@ public class CampaignDAO {
 		params.addValue("buyerId", buyerId);
 		return namedJdbc
 				.query("select proposal.campaignId, campaign.campaignTitle, campaign.campaignStartDate, campaign.campaignEndDate,"
-						+ "campaign.campaignRespondBy,count(proposal.proposalId) as totalProposals, count(prop.proposalId) as totalUnViewedProposals "
+						+ "campaign.campaignRespondBy,count(proposal.proposalId) as totalProposals, count(prop.proposalId) as totalUnViewedProposals,"
+						+ "count(prop1.proposalId) as totalAcceptedProposals "
 						+ "from hoarding_management.campaign campaign, hoarding_management.proposal proposal left join "
 						+ "hoarding_management.proposal prop ON proposal.proposalId = prop.proposalId AND prop.status = 'N' "
+						+ "left join hoarding_management.proposal prop1 ON proposal.proposalId = prop1.proposalId AND (prop1.status = 'A' || prop1.status = 'AV') "
 						+ "where campaign.campaignId = proposal.campaignId and campaign.buyerId = :buyerId group by campaign.campaignId "
 						+ "order by campaign.campaignStartDate desc", params,
 						new RowMapper<ProposalFeed>() {
@@ -393,6 +395,8 @@ public class CampaignDAO {
 										.getInt("totalProposals"));
 								proposalFeed.setUnreadProposalCount(rs
 										.getInt("totalUnViewedProposals"));
+								proposalFeed.setAcceptedProposalCount(rs
+										.getInt("totalAcceptedProposals"));
 								proposalFeed.setCampaignStatus(CommonUtil.evaluateCampaignStatus(
 										rs.getTimestamp("campaignStartDate"),
 										rs.getTimestamp("campaignEndDate"),

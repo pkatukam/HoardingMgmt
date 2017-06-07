@@ -203,6 +203,13 @@
 <script
 	src="${pageContext.request.contextPath}/static/scripts/dashboardForBuyer.js"
 	type="text/javascript"></script>
+<script
+	src="${pageContext.request.contextPath}/static/scripts/sockjs-0.3.4.js"
+	type="text/javascript"></script>
+<script src="${pageContext.request.contextPath}/static/scripts/stomp.js"
+	type="text/javascript"></script>
+
+
 <!-- END PAGE LEVEL PLUGINS -->
 
 <script>

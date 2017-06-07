@@ -106,14 +106,14 @@ var DashboardForBuyer = function() {
 			}
 
 			$('#proposalListUl').on('click', '.proposals', function(event) {
-				// alert(this.id + " " + ctx + "/openProposalFeed");
+			//	alert(this.id + " " + ctx + "/openProposalFeed");
 				var proposalFeed = proposalFeedMap[this.id];
-				// alert(proposalFeed)
+				//alert(proposalFeed)
 				var data = {
 					"proposalFeed" : JSON.stringify(proposalFeed),
 				};
 				$.post(ctx + "/openProposalFeed", data).done(function(status) {
-					// alert(proposalFeed.proposalCount + " " + status);
+					//alert(proposalFeed.proposalCount + " " + status);
 					window.location = ctx + status;
 				});
 

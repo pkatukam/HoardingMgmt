@@ -22,5 +22,16 @@ public class MessageService {
 		// TODO Auto-generated method stub
 		return messageDao.getMessagesByProposalID(proposalId);
 	}
+
+	public List<Message> getUnreadMessage(int userId, String user) {
+		// TODO Auto-generated method stub
+		return messageDao.getUnreadMessagesForUser(userId, user);
+				
+	}
+
+	public String markAllMessagesReadForUserProposal(int proposalId,
+			String initatedBy) {
+		return messageDao.updateAllMessageStatusAsReadForUserByProposalId(proposalId, initatedBy);
+	}
 	
 }

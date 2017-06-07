@@ -37,7 +37,7 @@ public class MarkerDAO {
 
 	@Autowired
 	private ProposalDAO proposalDAO;
-	
+
 	@Autowired
 	public void setDataSource(DataSource datasource) {
 		this.jdbc = new JdbcTemplate(datasource);
@@ -88,7 +88,6 @@ public class MarkerDAO {
 	}
 
 	public Marker getBasicMarkerById(int markerid) {
-		System.out.println("Basic Marker Retrieval" + markerid);
 		Marker marker = new Marker();
 		marker.setMarkerId(markerid);
 		MapSqlParameterSource params = new MapSqlParameterSource();
@@ -203,16 +202,13 @@ public class MarkerDAO {
 									throws SQLException {
 								Marker marker = new Marker();
 								getMarkerDetails(rs, marker);
-								/*List<MarkerGallery> markerGallery = markerGalleryDAO
-										.getImagesForMarker(marker
-												.getMarkerId());
-								marker.setMarkerGallery(markerGallery);*/
 								return marker;
 							}
 						});
 	}
-	
-	public List<Marker> getMarkerBySellerIDAndCityIDWithImage(int sellerId, int cityId) {
+
+	public List<Marker> getMarkerBySellerIDAndCityIDWithImage(int sellerId,
+			int cityId) {
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("sellerId", sellerId);
 		params.addValue("cityId", cityId);
@@ -261,10 +257,23 @@ public class MarkerDAO {
 									throws SQLException {
 								Marker marker = new Marker();
 								getMarkerDetails(rs, marker);
-								List<MarkerGallery> markerGallery = markerGalleryDAO
-										.getImagesForMarker(marker
-												.getMarkerId());
-								marker.setMarkerGallery(markerGallery);
+								return marker;
+							}
+						});
+	}
+
+	public List<Marker> getMarkersByBuyerIDAndProposalExist(int buyerId,
+			int campaignId) {
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("buyerId", buyerId);
+		params.addValue("campaignId", campaignId);
+		return namedJdbc
+				.query("Select markerId, markerName, sellerId, address, availability, rate, categoryId, lighting, height, width, cityId, X(point) AS latitude, Y(point) AS longitude from marker where markerId in (select markerId from Proposal where buyerId = :buyerId and campaignId = :campaignId group by markerId)",
+						params, new RowMapper<Marker>() {
+							public Marker mapRow(ResultSet rs, int arg1)
+									throws SQLException {
+								Marker marker = new Marker();
+								getMarkerDetails(rs, marker);
 								return marker;
 							}
 						});

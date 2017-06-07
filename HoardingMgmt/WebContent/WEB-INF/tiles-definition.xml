@@ -107,11 +107,11 @@
 	</definition>
 
 
-	<definition name="geolocation" extends="base.definition">
-		<put-attribute name="title" value="Geo Location" />
-		<put-attribute name="current" value="geolocation" />
+	<definition name="messagesList" extends="base.definition">
+		<put-attribute name="title" value="Messages" />
+		<put-attribute name="current" value="messages" />
 		<put-attribute name="body"
-			value="/WEB-INF/jsps/campaign/GeoLocation.jsp" />
+			value="/WEB-INF/jsps/dashboard/messages.jsp" />
 	</definition>
 
 

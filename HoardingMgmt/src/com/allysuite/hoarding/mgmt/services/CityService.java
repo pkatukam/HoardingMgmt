@@ -18,5 +18,9 @@ public class CityService {
 		return cityDAO.getAllCitieForProposalExistByBuyerId(buyerId);
 	}
 
+	public List<City> getAllCitieWithProposalsForBuyerId(int buyerId, int campaignId) {
+		return cityDAO.getAllCitieForProposalExistByBuyerId(buyerId, campaignId);
+	}
+
 
 }

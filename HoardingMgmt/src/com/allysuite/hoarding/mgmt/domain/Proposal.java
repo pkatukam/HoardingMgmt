@@ -5,14 +5,17 @@ import java.util.Date;
 import java.util.List;
 
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import com.allysuite.hoarding.mgmt.commons.CustomJsonDateDeserializer;
+import com.allysuite.hoarding.mgmt.commons.CustomJsonDateSerializer;
 
 public class Proposal {
 	private int buyerId;
 	private int sellerId;
 	private int cityId;
 	private City city;
+	@JsonSerialize(using =  CustomJsonDateSerializer.class)
 	private Date createdDate;
 	private int proposalId;
 	private int markerId;
@@ -23,12 +26,45 @@ public class Proposal {
 	private String note;
 	// New Read Resend Accept Decline
 	private String status;
+	@JsonSerialize(using =  CustomJsonDateSerializer.class)
 	private Date availableStartDate;
+	@JsonSerialize(using =  CustomJsonDateSerializer.class)
 	private Date availableEndDate;
 	private boolean isBuyerAccepeted;
 	private boolean isSellerAccepted;
 	private List<Message> messages;
+	private int negotiationId;
+	private Date createdDateTimeStamp;
+	private Date acceptedDate;
 	
+	/**
+	 * @return the acceptedDate
+	 */
+	public Date getAcceptedDate() {
+		return acceptedDate;
+	}
+
+	/**
+	 * @param acceptedDate the acceptedDate to set
+	 */
+	public void setAcceptedDate(Date acceptedDate) {
+		this.acceptedDate = acceptedDate;
+	}
+
+	/**
+	 * @return the createdDateTimeStamp
+	 */
+	public Date getCreatedDateTimeStamp() {
+		return createdDateTimeStamp;
+	}
+
+	/**
+	 * @param createdDateTimeStamp the createdDateTimeStamp to set
+	 */
+	public void setCreatedDateTimeStamp(Date createdDateTimeStamp) {
+		this.createdDateTimeStamp = createdDateTimeStamp;
+	}
+
 	public List<Message> getMessages() {
 		return messages;
 	}
@@ -117,7 +153,8 @@ public class Proposal {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-
+	
+	@JsonSerialize(using =  CustomJsonDateSerializer.class)
 	public Date getAvailableStartDate() {
 		return availableStartDate;
 	}
@@ -127,6 +164,7 @@ public class Proposal {
 		this.availableStartDate = availableStartDate;
 	}
 
+	@JsonSerialize(using =  CustomJsonDateSerializer.class)
 	public Date getAvailableEndDate() {
 		return availableEndDate;
 	}
@@ -168,6 +206,24 @@ public class Proposal {
 		this.marker = marker;
 	}
 
+	
+	/**
+	 * @return the negotiationId
+	 */
+	public int getNegotiationId() {
+		return negotiationId;
+	}
+
+	/**
+	 * @param negotiationId the negotiationId to set
+	 */
+	public void setNegotiationId(int negotiationId) {
+		this.negotiationId = negotiationId;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "Proposal [buyerId=" + buyerId + ", sellerId=" + sellerId
@@ -179,7 +235,9 @@ public class Proposal {
 				+ availableStartDate + ", availableEndDate=" + availableEndDate
 				+ ", isBuyerAccepeted=" + isBuyerAccepeted
 				+ ", isSellerAccepted=" + isSellerAccepted + ", messages="
-				+ messages + "]";
+				+ messages + ", negotiationId=" + negotiationId
+				+ ", createdDateTimeStamp=" + createdDateTimeStamp
+				+ ", acceptedDate=" + acceptedDate + "]";
 	}
 
 }

@@ -163,9 +163,9 @@ html, body {
 												</label>
 												<div class="col-md-4">
 													<input type="text" placeholder="" class="form-control"
-														id="campaignTitle" name="campaignTitle"
-														 /> <span class="help-block">
-														Provide a title for your Campaign </span>
+														id="campaignTitle" name="campaignTitle" /> <span
+														class="help-block"> Provide a title for your
+														Campaign </span>
 												</div>
 											</div>
 											<div class="form-group">
@@ -190,11 +190,12 @@ html, body {
 												<div class="col-md-4">
 													<div
 														class="input-group input-large date-picker input-daterange"
-														data-date="10/11/2012" data-date-format="mm/dd/yyyy">
+														data-date="10/11/2012" data-date-format="dd-mm-yyyy">
 														<input type="text" class="form-control"
 															name="campaignFrom" id="campaignFrom"> <span
 															class="input-group-addon"> to </span> <input type="text"
-															class="form-control" name="campaignTo" id="campaignTo" />
+															class="form-control" name="campaignTo" id="campaignTo"
+															disabled="disabled" />
 													</div>
 													<!-- /input-group -->
 													<span class="help-block"> Set Campaign Start date
@@ -207,8 +208,9 @@ html, body {
 												<div class="col-md-4">
 													<input
 														class="form-control form-control-inline input-medium date-picker"
-														size="16" type="text" value="" name="campaignRespondBy"
-														id="campaignRespondBy" /> <span class="help-block">
+														data-date-format="dd-mm-yyyy" size="16" type="text"
+														value="" name="campaignRespondBy" id="campaignRespondBy"
+														disabled="disabled" /> <span class="help-block">
 														Set Respond By date for your Campaign </span>
 												</div>
 											</div>
@@ -218,7 +220,7 @@ html, body {
 											<!-- 	<div class="form-group">
 												<label class="control-label col-md-3">Inline</label>
 												<div class="col-md-3">
-													<div class="date-picker" data-date-format="mm/dd/yyyy">
+													<div class="date-picker" data-date-format="dd-mmm-yyyy">
 													</div>
 												</div>
 											</div>-->
@@ -307,9 +309,9 @@ html, body {
 														</label> <label><span>&nbsp;&nbsp;</span> <input
 															type="checkbox" name="categories"
 															id="busTransitAdvertising" value="11"
-															data-title="Bus & Transit Advertising." /> Bus &amp; Transit
-															Advertising </label> <label><span>&nbsp;&nbsp;</span> <input
-															type="checkbox" name="categories"
+															data-title="Bus & Transit Advertising." /> Bus &amp;
+															Transit Advertising </label> <label><span>&nbsp;&nbsp;</span>
+															<input type="checkbox" name="categories"
 															id="busBenchAdvertising" value="12"
 															data-title="Bus Bench Advertising." /> Bus Bench
 															Advertising </label> <label><span>&nbsp;&nbsp;</span> <input
@@ -749,11 +751,50 @@ html, body {
 		
 	</script>
 	<script>
-		jQuery(document).ready(function() {
-			FormWizard.init();
-			ComponentsPickers.init();
-			ComponentsDropdowns.init();
-		});
+		jQuery(document).ready(
+				function() {
+					var dt = new Date();
+					$('#campaignFrom').datepicker({
+						format : 'dd-mm-yyyy',
+						startDate : dt,
+						autoclose : true
+					});
+					$('#campaignTo').datepicker({
+						format : 'dd-mm-yyyy',
+						autoclose : true
+					});
+					$('#campaignRespondBy').datepicker({
+						format : 'dd-mm-yyyy',
+						startDate : dt,
+						autoclose : true
+					});
+					var count = 0;
+					var f;
+					$('#campaignFrom').change(
+							function() {
+								if ($('#campaignFrom').val() != '') {
+									$("#campaignTo").prop("disabled", false);
+									$('#campaignTo').datepicker('setStartDate',
+											$('#campaignFrom').val());
+								}
+							});
+
+					$('#campaignTo').change(
+							function() {
+								if ($("#campaignTo") != '') {
+									$("#campaignRespondBy").prop("disabled",
+											false);
+									$('#campaignRespondBy').datepicker(
+											'setEndDate',
+											$('#campaignTo').val());
+								}
+							});
+
+					FormWizard.init();
+					ComponentsPickers.init();
+					ComponentsDropdowns.init();
+
+				});
 	</script>
 </body>
 

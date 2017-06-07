@@ -97,6 +97,9 @@ body {
 	width: 400px;
 }
 </style>
+<script>
+	var url = "<c:url value='/hello'/>";
+</script>
 </head>
 <body>
 	<!-- BEGIN CONTENT -->
@@ -184,15 +187,19 @@ body {
 								</button>
 								<div class="dropdown-menu hold-on-click dropdown-radiobuttons"
 									role="menu">
-									<label><input type="radio" name="rate_filter" value="0">&#8377;
-										0</label> <label><input type="radio" name="rate_filter"
-										value="5000">&#8377; 5000+</label> <label><input
+									<label><input type="radio" name="min_max_select"
+										value="lt">&lt;= </label> <label><input type="radio"
+										name="min_max_select" value="gt" checked>&gt;= </label>
+									<hr>
+									<label><input type="radio" name="rate_filter" value="0"
+										checked>&#8377; 0</label> <label><input type="radio"
+										name="rate_filter" value="5000">&#8377; 5000</label> <label><input
 										type="radio" name="rate_filter" value="10000">&#8377;
 										10.0k</label> <label><input type="radio" name="rate_filter"
-										value="20000">&#8377; 20.0k+</label> <label><input
+										value="20000">&#8377; 20.0k</label> <label><input
 										type="radio" name="rate_filter" value="40000">&#8377;
-										40.0+</label> <label><input type="radio" name="rate_filter"
-										value="50000">&#8377; 50.0k+</label>
+										40.0</label> <label><input type="radio" name="rate_filter"
+										value="50000">&#8377; 50.0k</label>
 								</div>
 							</div>
 							<div class="btn-group btn-group-md">
@@ -208,6 +215,27 @@ body {
 									style="width: 90px; color: black; background-color: transparent;"
 									onfocus="this.placeholder = ''"
 									onblur="this.placeholder = 'Width'">
+							</div>
+							<div class="btn-group btn-group-md">
+								<button type="button" class="btn"
+									style="background-color: transparent; color: black;">
+									Status</button>
+								<button type="button" class="btn dropdown-toggle"
+									data-toggle="dropdown"
+									style="background-color: transparent; color: black;">
+									<i class="fa fa-angle-down"></i>
+								</button>
+								<div class="dropdown-menu hold-on-click dropdown-checkboxes"
+									role="menu">
+									<label><input type="checkbox" name="status_filter"
+										value="N"> New</label><label><input type="checkbox"
+										name="status_filter" value="R"> Viewed</label><label><input
+										type="checkbox" name="status_filter" value="IN"> In
+										Negotiation</label> <label><input type="checkbox"
+										name="status_filter" value="RS"> Resent</label> <label><input
+										type="checkbox" name="status_filter" value="A"> Accept</label>
+								</div>
+
 							</div>
 							<div class="btn-group btn-group-md">
 								<button id="resetFilters" type="button" class="btn"
@@ -258,11 +286,13 @@ body {
 	</div>
 	<div id="slideout">
 		<div id="slidecontent">
-			<div class="portlet box grey-gallery" style="width: 330px;">
+			<div class="portlet box grey-gallery" style="width: 335px;">
 				<div class="portlet-title">
 					<ul id="proposalTabs" class="nav nav-tabs">
 						<li id="detailsLi" class="exceptions exceptionsli"><a
-							href="#details" data-toggle="tab"> Proposal Details </a></li>
+							href="#details" data-toggle="tab"> Details </a></li>
+						<li id="negotiateList" class="exceptions exceptionsli"><a
+							href="#negotiate" data-toggle="tab"> Accept/Negotigate </a></li>
 						<li id="messagesLi" class="exceptions exceptionsli"><a
 							href="#messages" data-toggle="tab"> Messages </a></li>
 					</ul>
@@ -271,11 +301,12 @@ body {
 					</div>
 				</div>
 				<div class="portlet-body">
-					<input type="hidden" id="proposalId" />
+					<input type="hidden" id="proposalId" /> <input type="hidden"
+						id="sellerId" />
 					<div class="tabbable tabbable-tabdrop">
 						<div class="tab-content">
 							<div class="tab-pane active exceptions" id="details">
-								<div class="scroller" style="height: 560px;"
+								<div class="scroller" style="height: 495px;"
 									data-always-visible="1" data-rail-visible="0">
 									<div class="panel-group accordion" id="accordion3">
 										<div class="panel panel-default">
@@ -321,46 +352,77 @@ body {
 											<div class="panel-heading">
 												<h4 class="panel-title">
 													<a id="proposalAnchor"
-														class="accordion-toggle accordion-toggle-styled "
+														class="accordion-toggle accordion-toggle-styled"
 														data-toggle="collapse" data-parent="#accordion3"
 														href="#collapse_3_4"> Proposal Details </a>
 												</h4>
 											</div>
 											<div id="collapse_3_4" id="proposalAccordion"
-												class="panel-collapse in">
+												class="panel-collapse">
 												<div id="proposalDetails"
-													style="height: 300px; overflow: auto" class="panel-body">
+													style="height: 200px; overflow: auto"
+													class="panel-body overflow: scroll; overflow-x: hidden;">
 												</div>
 
 											</div>
 										</div>
+
 									</div>
 
 									<!-- END FORM-->
 								</div>
 								<div style="vertical-align: middle; border: 1px sold black;">
-									<button type="button" id="deleteFiles"
-										style="margin-left: 30px; margin-bottom: 30px;"
-										class="btn green">
-										<i id="accept" class="icon-like"></i> &nbsp;&nbsp; Accept
+									<button type="button" id="acceptNegotiate"
+										style="margin-bottom: 30px;" class="btn green">
+										<i class="icon-like"></i>&nbsp; Accept/Negotiate
 										&nbsp;&nbsp;&nbsp;
 									</button>
 									<button type="button" id="message" style="margin-bottom: 30px;"
 										class="btn yellow">
-										<i class="fa fa-envelope-o"></i> &nbsp;&nbsp; Message
-										&nbsp;&nbsp;
+										<i class="fa fa-envelope-o"></i> &nbsp; Message &nbsp;&nbsp;
 									</button>
 								</div>
 
 								<!-- END FORM-->
 							</div>
+							<div class="tab-pane exceptions" id="negotiate">
+								<div class="overflow: scroll; overflow-x: hidden;"
+									style="height: 535px;" data-always-visible="1"
+									data-rail-visible="0" id="negotiate_scroll">
+									<div>
+										<div>
+											<h4>
+												<b>Negotiate Proposal</b>
+											</h4>
+											<hr>
+											<div>
+												Price<span class="required"> * </span> : <input type="text"
+													placeholder="" style="width: 70px;" id="number"
+													name="number" /> &#8377; <a id="requestNegotiationPrice"
+													class="btn green btn-xs">Request Price</a> <input
+													type="hidden" id="requestedNegotiationPrice"
+													name="requestedNegotiationPrice" />
+											</div>
+											<hr>
+											<h4>
+												<b>Accept Proposal</b>
+											</h4>
+											<hr>
+											<div style="height: 340px; overflow: auto"
+												id="negotiationHistoryScroll"
+												class="overflow: scroll; overflow-x: hidden;"></div>
+										</div>
+									</div>
+								</div>
+							</div>
 							<div class="tab-pane exceptions" id="messages">
-								<div class="scroller" style="height: 555px;"
+								<div
+									style="height: 510px; overflow: scroll; overflow-x: hidden;"
 									data-always-visible="1" data-rail-visible="0"
 									id="message_scroll"></div>
 								<div>
 									<div>
-										<div class="input-group">
+										<div class="input-group" id="send_message">
 											<input type="text" class="form-control" id="messageString"
 												placeholder="Type a message here...">
 											<div class="input-group-btn">
@@ -395,5 +457,8 @@ body {
 		async defer>
 		
 	</script>
+	<jsp:include page="../global/imageGallery.jsp" />
+	<jsp:include page="../global/loadings.jsp" />
+
 </body>
 </html>

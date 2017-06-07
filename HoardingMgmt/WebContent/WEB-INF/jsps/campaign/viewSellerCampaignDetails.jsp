@@ -15,7 +15,8 @@
 	src="${pageContext.request.contextPath}/static/scripts/campaignDetailForSeller.js"
 	type="text/javascript"></script>
 <script>
-	var ctx = "${pageContext.request.contextPath}"
+	var ctx = "${pageContext.request.contextPath}";
+	var url = "<c:url value='/hello'/>";
 </script>
 </head>
 <body>
@@ -24,6 +25,7 @@
 			response.sendRedirect("${pageContext.request.contextPath}/");
 			session.setAttribute("campaign", request.getAttribute("campaign"));
 			User user = (User) session.getAttribute("user");
+			int sellerId = user != null ? ((Seller) user).getSellerId() : 0;
 			if (user == null)
 		response.sendRedirect("${pageContext.request.contextPath}/");
 			String firstName = user != null
@@ -33,6 +35,9 @@
 			? ((Seller) user).getLastName()
 			: "You";
 	%>
+	<input type="hidden" id="sellerId" name="sellerId"
+		value="<%=sellerId%>" />
+
 
 	<!-- BEGIN CONTENT -->
 	<div class="page-content">
@@ -126,7 +131,7 @@
 										<c:out value='${city.cityName}' />,
 										<%
 											City city = (City) pageContext.getAttribute("city");
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			cityMap.put(city.getCityId(), city.getCityName());
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			cityMap.put(city.getCityId(), city.getCityName());
 										%>
 									</c:forEach>
 								</div>
@@ -203,7 +208,7 @@
 				<div class="col-md-6 col-sm-12">
 					<%
 						Map map = (Map) pageContext.getAttribute("map");
-																																																																																																																																																																																																																																																																							String cityname = cityMap.get(map.getCityId());
+																																																																																																																																																																																																																																																																																			String cityname = cityMap.get(map.getCityId());
 					%>
 					<div class="portlet <%=classList[classCount]%> box"
 						id="portlet<%=cityname%>">
@@ -218,7 +223,7 @@
 							</div>
 						</div>
 						<div class="portlet-body">
-							<div id="map-canvas<%=cityname%>" ></div>
+							<div id="map-canvas<%=cityname%>"></div>
 						</div>
 					</div>
 				</div>
@@ -243,17 +248,17 @@
 							</div>
 						</div>
 						<div class="portlet-body">
-							<div id="map-canvas<%=cityname%>" ></div>
+							<div id="map-canvas<%=cityname%>"></div>
 						</div>
 					</div>
 				</div>
 			</div>
 			<%
 				}
-																																																																																																																																																																												mapCount++;
-																																																																																																																																																																												classCount++;
-																																																																																																																																																																												if (classCount > classList.length)
-																																																																																																																																																																													classCount = 0;
+																																																																																																																																																																																mapCount++;
+																																																																																																																																																																																classCount++;
+																																																																																																																																																																																if (classCount > classList.length)
+																																																																																																																																																																																	classCount = 0;
 			%>
 
 		</c:forEach>

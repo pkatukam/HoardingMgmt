@@ -411,11 +411,17 @@ var DashboardForSeller = function() {
 											+ $("#lastName").val().charAt(0)
 													.toUpperCase() + "</b>");
 							$('#messageString').val("");
+							var proposalId = $("#proposalId").val();
+							var proposal = proposalMap[proposalId];
 							var messageData = {
 								message : msg,
 								sentDate : now,
-								proposalId : $("#proposalId").val(),
-								initiatedBy : "s"
+								proposalId : proposalId,
+								initiatedBy : "s",
+								firstName : $("#firstName").val(),
+								lastName : $("#lastName").val(),
+								userId : proposal.buyerId,
+								user : "buyer"
 							}
 
 							$.post(ctx + "/sendMessage", messageData).done(
@@ -484,14 +490,23 @@ var DashboardForSeller = function() {
 							}
 						}
 					}
-					var campaignIdStr = ctx
-							+ "/viewSellerCampaignDetails/campaignId/"
-							+ campaign.campaignId;
-					$(descDivElem).html(
-							"<a id='" + campaign.campaignId + "' href='"
-									+ campaignIdStr + "'> "
-									+ campaign.campaignTitle
-									+ "</a> campaign created for " + citiesStr);
+					var anchor = $("<a />", {
+						id : campaign.campaignId
+					}).click(function() {
+						var campaignId = this.id;
+						var url = ctx + "/openCampaignDetails";
+						var data = {
+							"campaignId" : campaignId
+						};
+						$.post(url, data).done(function(status) {
+							// alert(status);
+							window.location = ctx + status;
+						});
+					}).appendTo(descDivElem);
+					$(anchor).text(campaign.campaignTitle);
+
+					var sp = $("<span />").appendTo(descDivElem);
+					$(sp).html(" campaign created for " + citiesStr);
 
 					var labelSpan = $("<span/>").appendTo(descDivElem);
 					$(labelSpan).addClass("label label-sm label-warning");
@@ -506,7 +521,6 @@ var DashboardForSeller = function() {
 
 					var today = new Date();
 					var campaignDate = new Date(campaign.campaignCreatedDate);
-
 					$(dateDivElem).html(calcDate(today, campaignDate));
 				}
 				$("#loadingCampaignsDiv").hide();
@@ -527,7 +541,7 @@ var DashboardForSeller = function() {
 				}
 				return objects;
 			}
-			
+
 			function calcDate(date1, date2) {
 				var message;
 				var diff = Math.floor(date1.getTime() - date2.getTime()); // Milleseconds
@@ -558,7 +572,6 @@ var DashboardForSeller = function() {
 					return seconds + " sec";
 				return diff + " ms"
 			}
-
 
 		}
 	};

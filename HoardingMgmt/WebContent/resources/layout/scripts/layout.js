@@ -394,7 +394,6 @@ var Layout = function () {
                     $.cookie('sidebar_closed', '0');
                 }
             } else {
-            	alert("hide");
             	$("#oohVideo").hide();
                 body.addClass("page-sidebar-closed");
                 sidebarMenu.addClass("page-sidebar-menu-closed");

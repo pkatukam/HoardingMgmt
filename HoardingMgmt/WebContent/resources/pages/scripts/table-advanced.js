@@ -6,6 +6,7 @@ var TableAdvanced = function() {
 		/* Fixed header extension: http://datatables.net/extensions/keytable/ */
 
 		var oTable = table.dataTable({
+			"bSort" : false, 
 			// Internationalisation. For more info refer to
 			// http://datatables.net/manual/i18n
 			"language" : {
@@ -29,11 +30,11 @@ var TableAdvanced = function() {
 			],
 			"pageLength" : 10, // set the initial value,
 			"columnDefs" : [ { // set default column settings
-				//'orderable' : false,
-				//'targets' : [ 0 ]
+				// 'orderable' : true,
+				// 'targets' : [2]
 			}, {
-				//"searchable" : false,
-				//"targets" : [ 0 ]
+				// "searchable" : false,
+				// "targets" : [ 0 ]
 			} ],
 		});
 

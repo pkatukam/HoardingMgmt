@@ -51,6 +51,9 @@ public class LoginController {
 	public ModelAndView login(HttpServletRequest request, Model model,
 			@Valid Login login) {
 		logger.info("Login Controller" + login);
+		HttpSession sessions = request.getSession(false);
+		if (sessions != null)
+			sessions.invalidate();
 		HttpSession session = request.getSession(true);
 		User user = loginService.login(login);
 		if (user == null) {

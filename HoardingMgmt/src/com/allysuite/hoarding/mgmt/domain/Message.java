@@ -23,6 +23,38 @@ public class Message {
 	private String initiatedBy;
 	private String message;
 	private Date sentDate;
+	
+	//Needed for Message Notification
+	private String firstName;
+	/**
+	 * @return the lastName
+	 */
+	public String getLastName() {
+		return lastName;
+	}
+
+	/**
+	 * @param lastName the lastName to set
+	 */
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	/**
+	 * @return the firstName
+	 */
+	public String getFirstName() {
+		return firstName;
+	}
+
+	/**
+	 * @param firstName the firstName to set
+	 */
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	private String lastName;
 
 	public int getMessageId() {
 		return messageId;
@@ -64,11 +96,15 @@ public class Message {
 		this.sentDate = sentDate;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "Message [messageId=" + messageId + ", proposalId=" + proposalId
 				+ ", initiatedBy=" + initiatedBy + ", message=" + message
-				+ ", sentDate=" + sentDate + "]";
+				+ ", sentDate=" + sentDate + ", firstName=" + firstName
+				+ ", lastName=" + lastName + "]";
 	}
 
 }

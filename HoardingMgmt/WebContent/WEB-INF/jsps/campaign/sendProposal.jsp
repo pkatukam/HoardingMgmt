@@ -1,15 +1,4 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<!-- <style>
-.mapStyle {
-	height: 500px;
-	width: 500px;
-}
-
-.mapStyleExpand {
-	height: 585px;
-	width: 1340px;
-}
-</style> -->
 <style>
 .black_overlay {
 	display: none;
@@ -51,6 +40,11 @@ hr {
 	border-color: black;
 }
 </style>
+<style>
+.alnright {
+	text-align: right;
+}
+</style>
 <link rel="stylesheet" type="text/css"
 	href="http://w2ui.com/src/w2ui-1.4.2.min.css" />
 <script
@@ -76,8 +70,11 @@ hr {
 						<li id="proposalsLi" class="tab-li active"><a
 							data-toggle="tab" href="#tabPane_0"
 							style="text-decoration: none; color: black;">Proposal Details</a></li>
+						<li id="negotiationLi" class="tab-li"><a data-toggle="tab"
+							href="#tabPane_1" style="text-decoration: none; color: black;">Accept/Negotiate
+						</a></li>
 						<li id="messagesLi" style="visibility: hidden;" class="tab-li"><a
-							data-toggle="tab" href="#tabPane_1"
+							data-toggle="tab" href="#tabPane_2"
 							style="text-decoration: none; color: black;">Messages</a></li>
 					</ul>
 					<div class="tab-content">
@@ -245,15 +242,20 @@ hr {
 								<hr>
 								<div class="row">
 									<div class="clearfix">
-										<div class="col-sm-4"></div>
+										<div class="col-sm-2"></div>
 										<div class="btn-group btn-group-solid">
 											<button type="button" id="send_proposal" class="btn red">Send
 												Proposal</button>
 										</div>
 										<div class="btn-group btn-group-solid">
-											<button type="button" id="message" class="btn red">
-												<i class="fa fa-envelope-o"></i> &nbsp;&nbsp; Message
+											<button type="button" id="acceptNegotiate" class="btn red">
+												<i class="icon-like"></i> &nbsp; Accept/Negotiate
 												&nbsp;&nbsp;
+											</button>
+										</div>
+										<div class="btn-group btn-group-solid">
+											<button type="button" id="message" class="btn red">
+												<i class="fa fa-envelope-o"></i> &nbsp; Message &nbsp;&nbsp;
 											</button>
 										</div>
 									</div>
@@ -261,6 +263,35 @@ hr {
 							</form>
 						</div>
 						<div class="tab-pane" id="tabPane_1">
+							<div class="overflow: scroll; overflow-x: hidden;"
+								data-always-visible="1" data-rail-visible="0"
+								id="negotition_scroll"></div>
+							<div>
+								<div>
+									<h4>
+										<b>Negotiate Proposal</b>
+									</h4>
+									<hr>
+									<div>
+										Price<span class="required"> * </span> : <input type="text"
+											placeholder="" style="width: 70px;" id="number" name="number" />
+										&#8377; <a id="requestNegotiationPrice"
+											class="btn green btn-xs">Suggest Price</a> <input
+											type="hidden" id="requestedNegotiationPrice"
+											name="requestedNegotiationPrice" />
+									</div>
+									<hr>
+									<h4>
+										<b>Negotiation History</b>
+									</h4>
+									<hr>
+									<div style="height: 240px; overflow: auto"
+										id="negotiationHistoryScroll"
+										class="overflow: scroll; overflow-x: hidden;"></div>
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane" id="tabPane_2">
 							<div class="scroller" style="height: 441px;"
 								data-always-visible="1" data-rail-visible="0"
 								id="message_scroll"></div>

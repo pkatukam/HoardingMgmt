@@ -39,12 +39,29 @@ public class CityDAO {
 					}
 				});
 	}
-
+	
 	public List<City> getAllCitieForProposalExistByBuyerId(int buyerId) {
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("buyerId", buyerId);
 		return namedJdbc
 				.query("Select * from city where cityId in (select cityId from Proposal where buyerId = :buyerId group by cityId)",
+						params, new RowMapper<City>() {
+							public City mapRow(ResultSet rs, int arg1)
+									throws SQLException {
+								City city = new City();
+								city.setCityId(rs.getInt("cityId"));
+								city.setCityName(rs.getString("cityName"));
+								return city;
+							}
+						});
+	}
+
+	public List<City> getAllCitieForProposalExistByBuyerId(int buyerId, int campaignId) {
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("buyerId", buyerId);
+		params.addValue("campaignId", campaignId);
+		return namedJdbc
+				.query("Select * from city where cityId in (select cityId from Proposal where buyerId = :buyerId and campaignId = :campaignId group by cityId)",
 						params, new RowMapper<City>() {
 							public City mapRow(ResultSet rs, int arg1)
 									throws SQLException {

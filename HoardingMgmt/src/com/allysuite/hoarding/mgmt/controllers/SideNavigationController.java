@@ -42,11 +42,9 @@ public class SideNavigationController {
 		return new ModelAndView("proposalList");
 	}
 
-	@RequestMapping("/geolocation")
-	public ModelAndView viewGeoLocation(Model model) {
-		return new ModelAndView("geolocation");
+	@RequestMapping("/viewMessages")
+	public ModelAndView viewMessages(Model model) {
+		return new ModelAndView("messagesList");
 	}
 
-
-	
 }

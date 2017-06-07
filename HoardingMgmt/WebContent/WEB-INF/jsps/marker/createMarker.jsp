@@ -222,7 +222,8 @@ body {
 			AddMarker.init();
 		});
 	</script>
-
+	<jsp:include page="../global/imageGallery.jsp" />
+	<jsp:include page="../global/loadings.jsp" />
 </body>
 
 </html>

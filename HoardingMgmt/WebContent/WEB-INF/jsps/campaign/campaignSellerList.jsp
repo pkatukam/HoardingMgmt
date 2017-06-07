@@ -50,7 +50,6 @@
 					id="sample_6">
 					<thead>
 						<tr>
-							<th>#</th>
 							<th>Title</th>
 							<th>Buyer</th>
 							<th>Start Date</th>
@@ -64,7 +63,6 @@
 						<c:if test="${not empty campaignList}">
 							<c:forEach var="campaign" items="${campaignList}">
 								<tr class='clickable-row' id='${campaign.campaignId}'>
-									<td>${campaign.campaignId}</td>
 									<td>${campaign.campaignTitle}</td>
 									<td>${campaign.buyerName}</td>
 									<td>${campaign.campaignFrom}</td>
@@ -96,6 +94,7 @@
 					window.location = ctx + status;
 				});
 			});
+			TableAdvanced.init();
 		});
 	</script>
 

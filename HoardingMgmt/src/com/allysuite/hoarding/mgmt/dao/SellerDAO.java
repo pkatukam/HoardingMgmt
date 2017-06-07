@@ -86,6 +86,26 @@ public class SellerDAO {
 				});
 	}
 
+	
+	public Seller getSellerByProposalId(int proposalId) {
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("proposalId", proposalId);
+
+		return namedJdbc.queryForObject(
+				"Select * from seller where sellerId =( select sellerId from Proposal where proposalId = :proposalId)", params,
+				new RowMapper<Seller>() {
+
+					public Seller mapRow(ResultSet rs, int arg1)
+							throws SQLException {
+						Seller seller = new Seller();
+
+						getSellerDetails(rs, seller);
+
+						return seller;
+					}
+				});
+	}
+	
 	public boolean delete(int sellerId) {
 		MapSqlParameterSource params = new MapSqlParameterSource();
 		params.addValue("sellerId", sellerId);
@@ -137,6 +157,23 @@ public class SellerDAO {
 		params.addValue("buyerId", buyerId);
 		return namedJdbc
 				.query("Select * from seller where sellerId in (select sellerId from Proposal where buyerId = :buyerId group by sellerId)",
+						params, new RowMapper<Seller>() {
+							public Seller mapRow(ResultSet rs, int arg1)
+									throws SQLException {
+								Seller seller = new Seller();
+								getSellerDetails(rs, seller);
+								return seller;
+							}
+						});
+	}
+	
+	
+	public List<Seller> getSellersByBuyerIDWithProposals(int buyerId, int campaignId) {
+		MapSqlParameterSource params = new MapSqlParameterSource();
+		params.addValue("buyerId", buyerId);
+		params.addValue("campaignId", campaignId);
+		return namedJdbc
+				.query("Select * from seller where sellerId in (select sellerId from Proposal where buyerId = :buyerId and campaignId = :campaignId group by sellerId)",
 						params, new RowMapper<Seller>() {
 							public Seller mapRow(ResultSet rs, int arg1)
 									throws SQLException {

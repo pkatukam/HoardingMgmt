@@ -44,10 +44,11 @@
 					<thead>
 						<tr>
 							<th>Campaign</th>
-							<th>Proposals Viewed</th>
-							<th>Proposals UnViewed</th>
-							<th class="hidden-xs">Proposals Received</th>
-							<th class="hidden-xs">Campaign Status</th>
+							<th>Viewed</th>
+							<th>UnViewed</th>
+							<th class="hidden-xs">Received</th>
+							<th class="hidden-xs">Accepted</th>
+							<th class="hidden-xs">Status</th>
 							<th class="hidden-xs">Action</th>
 						</tr>
 					</thead>
@@ -58,48 +59,28 @@
 									<td><a id="${campaign.campaignName}"
 										href="${pageContext.request.contextPath}/viewCampaignDetail/campaignId/${campaign.campaignId}">${campaign.campaignName}</a></td>
 									<td>${campaign.proposalCount - campaign.unreadProposalCount}
-										Proposals &nbsp;&nbsp;<img width="30" height="30"
-										src="${pageContext.request.contextPath}/static/scripts/icons/markers/categories/10.png" />
-									</td>
+										Proposals &nbsp;&nbsp;</td>
 									<td>${campaign.unreadProposalCount}&nbsp;Proposals
-										&nbsp;&nbsp;<img width="30" height="30"
-										src="${pageContext.request.contextPath}/static/scripts/icons/markers/categories/10.gif" />
-									</td>
-									<td>${campaign.proposalCount}&nbsp;Proposals&nbsp;&nbsp;<img
-										width="30" height="30"
-										src="${pageContext.request.contextPath}/static/scripts/icons/markers/categories/10.png" />
-										<img width="30" height="30"
-										src="${pageContext.request.contextPath}/static/scripts/icons/markers/categories/10.gif" />
-									</td>
+										&nbsp;&nbsp;</td>
+									<td>${campaign.proposalCount}&nbsp;Proposals&nbsp;&nbsp;</td>
+									<td>${campaign.acceptedProposalCount}&nbsp;Proposals&nbsp;&nbsp;</td>
 									<c:if test="${campaign.campaignStatus == 0}">
-										<td><img width="20" height="20"
-											src="${pageContext.request.contextPath}/static/scripts/icons/campaignStatus/live.png" />
-											<span class="label label-sm label-success">LIVE</span></td>
-										<td><a id='${campaign.campaignId}'
-											class="btn default btn-xs green-stripe"> View </a></td>
+										<td><span class='font-green-turquoise'> LIVE</span></td>
 									</c:if>
 									<c:if test="${campaign.campaignStatus == 1}">
-										<td><img width="20" height="20"
-											src="${pageContext.request.contextPath}/static/scripts/icons/campaignStatus/blue.png" />
-											<span class="label label-sm label-info"> ACTIVE </span></td>
-										<td><a id='${campaign.campaignId}'
-											class="btn default btn-xs blue-stripe"> View </a></td>
+										<td><span class='font-blue'> ACTIVE </span></td>
 									</c:if>
 									<c:if test="${campaign.campaignStatus == 2}">
-										<td><img width="20" height="20"
-											src="${pageContext.request.contextPath}/static/scripts/icons/campaignStatus/yellow.png" />
-											<span class="label label-sm label-warning"> DUE </span></td>
-										<td><a id='${campaign.campaignId}'
-											class="btn default btn-xs yellow-stripe"> View </a></td>
+										<td><span class='font-yellow'> DUE </span></td>
 									</c:if>
 									<c:if test="${campaign.campaignStatus == 3}">
-										<td><img width="20" height="20"
-											src="${pageContext.request.contextPath}/static/scripts/icons/campaignStatus/red.png" />
-											<span class="label label-sm label-danger">EXPIRED </span></td>
-										<td><a id="${campaign.campaignId}"
-											class="btn default btn-xs red-stripe"> View </a></td>
+										<td><span class="font-red"> EXPIRED </span></td>
 									</c:if>
-
+									<td><a id="${campaign.campaignId}" class="btn blue btn-sm">
+											View All</a> <a id='${campaign.campaignId}'
+										class="btn green btn-sm" rel="A"> View Accepted </a> <a
+										id='${campaign.campaignId}' class="btn red btn-sm" rel="IN">
+											View In Negotiation </a></td>
 								</tr>
 							</c:forEach>
 						</c:if>
@@ -119,11 +100,12 @@
 								var campaignId = this.id;
 								var url = ctx + "/viewCampaignProposals";
 								var data = {
-									"campaignId" : campaignId
+									"campaignId" : campaignId,
+									"status" : this.rel
 								};
 								$.post(ctx + "/viewCampaignProposals", data)
 										.done(function(status) {
-										//	alert(status);
+											//	alert(status);
 											window.location = ctx + status;
 										});
 

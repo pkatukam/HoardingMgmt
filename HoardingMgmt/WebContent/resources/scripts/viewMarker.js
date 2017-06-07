@@ -394,23 +394,24 @@ var ViewMarker = function() {
 
 			function createMarkersOnMap() {
 				var selectDb = db();
-				selectDb.each(function(record, recordnumber) {
-					var location = {
-						lat : record["latitude"],
-						lng : record["longitude"]
-					};
-					var markerImage = "./static/scripts/icons/markers/categories/"
-						+ record["categoryId"] + ".png";
-					//alert(newMarker);
-					var marker_db = new google.maps.Marker({
-						position : location,
-						map : map,
-						optimized : false,
-						icon : markerImage
-					});
-					markers.push(marker_db);
-					addClickFunction(marker_db, record);
-				});
+				selectDb
+						.each(function(record, recordnumber) {
+							var location = {
+								lat : record["latitude"],
+								lng : record["longitude"]
+							};
+							var markerImage = "./static/scripts/icons/markers/categories/"
+									+ record["categoryId"] + ".png";
+							// alert(newMarker);
+							var marker_db = new google.maps.Marker({
+								position : location,
+								map : map,
+								optimized : false,
+								icon : markerImage
+							});
+							markers.push(marker_db);
+							addClickFunction(marker_db, record);
+						});
 			}
 
 			function deleteAllMarkers() {
@@ -553,10 +554,10 @@ var ViewMarker = function() {
 									lat : record["latitude"],
 									lng : record["longitude"]
 								};
-									
+
 								var markerImage = "./static/scripts/icons/markers/categories/"
-									+ record["categoryId"] + ".png";
-								
+										+ record["categoryId"] + ".png";
+
 								var marker_db = new google.maps.Marker({
 									position : location,
 									map : map,
@@ -672,7 +673,7 @@ var ViewMarker = function() {
 		}
 
 		function resetForm() {
-			//alert("reset");
+			// alert("reset");
 			$(':input', '#marker_form')
 					.not(':button, :submit, :reset, :hidden').val('')
 					.removeAttr('checked').prop('selectedIndex', 0);
@@ -796,57 +797,273 @@ var ViewMarker = function() {
 			var image_holder = $("#image_gallery");
 			var markerGallery = record["markerGallery"];
 			$(image_holder).empty();
-			for (var j = 0; j < markerGallery.length; j++) {
-				var id = "DBid" + markerGallery[j].markerGalleryId;
-				// alert("added" + id);
-				dbUploadFiles[id] = markerGallery[j];
+
+			if (markerGallery == null) {
 				var divContent = $("<div />", {
-					id : 'div' + id
+					id : 'div'
 				}).css({
-					width : "98px",
-					height : "89px",
+					width : "80px",
+					height : "80px",
 					float : "left",
 				}).appendTo(image_holder);
-				$(divContent).addClass("form=group");
-				var checkBox = $('<input />', {
-					type : 'checkbox',
-					id : id,
-					name : 'imagesCheckbox[]'
-				}).click(function() {
-					if ($('[name="imagesCheckbox[]"]:checked').length > 0) {
-						$("#deleteFiles").attr("disabled", false);
-					}
+				var img = $("<img />", {
+					id : "Img",
+					src : "./static/scripts/icons/loading/loading_sm.gif",
+					class : "thumb-image",
+					height : "75px",
+					width : "75px",
+					position : "absolute",
 				}).appendTo(divContent);
-				$(checkBox).css({
-					"vertical-align" : "top",
-					top : "0px"
-				});
-				$(checkBox).addClass("imgCheckBox");
-				$(checkBox).attr("disabled", "disabled");
-				var img = $(
-						"<img />",
-						{
-							id : "Img" + id,
-							src : "data:image/png;base64,"
-									+ markerGallery[j].imageFile,
-							class : "thumb-image",
-							height : "82px",
-							width : "82px",
-							position : "absolute",
-						}).appendTo(divContent);
+
+				var data = {
+					"markerId" : record["markerId"]
+				};
+				$("#load_message").empty();
+				$("#load_message").html(
+						"Please wait while we fetch the Images for this marker..");
+				document.getElementById('loading_light').style.display = 'block';
+				document.getElementById('loading_fade').style.display = 'block';
+
+				$
+						.post(ctx + "/getMarkerImages", data)
+						.done(
+								function(imageData) {
+									if (imageData) {
+										document
+												.getElementById('loading_light').style.display = 'none';
+										document.getElementById('loading_fade').style.display = 'none';
+										var imageGallery = $
+												.parseJSON(imageData);
+										record["markerGallery"] = imageGallery;
+										markerGallery = record["markerGallery"];
+										$(image_holder).empty();
+										if (markerGallery.length == 0) {
+											var divContent = $("<div />")
+													.appendTo(image_holder);
+											$(divContent).html(
+													"No Images avaiable.")
+										} else {
+											if (record["markerId"] == markerGallery[0].markerId) {
+												for (var j = 0; j < markerGallery.length; j++) {
+
+													var id = "DBid"
+															+ markerGallery[j].markerGalleryId;
+													// alert("added" + id);
+													dbUploadFiles[id] = markerGallery[j];
+													var divContent = $(
+															"<div />", {
+																id : 'div' + id
+															}).css({
+														width : "98px",
+														height : "89px",
+														float : "left",
+													}).appendTo(image_holder);
+													$(divContent).addClass(
+															"form=group");
+													var checkBox = $(
+															'<input />',
+															{
+																type : 'checkbox',
+																id : id,
+																name : 'imagesCheckbox[]'
+															})
+															.click(
+																	function() {
+																		if ($('[name="imagesCheckbox[]"]:checked').length > 0) {
+																			$(
+																					"#deleteFiles")
+																					.attr(
+																							"disabled",
+																							false);
+																		}
+																	})
+															.appendTo(
+																	divContent);
+													$(checkBox)
+															.css(
+																	{
+																		"vertical-align" : "top",
+																		top : "0px"
+																	});
+													$(checkBox).addClass(
+															"imgCheckBox");
+													$(checkBox).attr(
+															"disabled",
+															"disabled");
+													var img = $(
+															"<img />",
+															{
+																id : "Img" + id,
+																src : "data:image/png;base64,"
+																		+ markerGallery[j].imageFile,
+																class : "thumb-image",
+																height : "82px",
+																width : "82px",
+																position : "absolute",
+															})
+															.click(
+																	function() {
+																		var gallery = $("#gallery");
+																		$(
+																				gallery)
+																				.empty();
+																		var ul = $(
+																				"<ul />",
+																				{
+																					id : "image_slider"
+																				})
+																				.appendTo(
+																						gallery);
+																		for (var j1 = 0; j1 < markerGallery.length; j1++) {
+																			var li = $(
+																					"<li />")
+																					.appendTo(
+																							ul);
+																			var thumbImg = $(
+																					"<img/>",
+																					{
+																						id : j1,
+																						src : "data:image/png;base64,"
+																								+ markerGallery[j1].imageFile,
+																						width : "1050px",
+																						height : "460px"
+																					})
+																					.appendTo(
+																							li);
+																		}
+																		$(
+																				"<span />",
+																				{
+																					class : "nvgt",
+																					id : "prev"
+																				})
+																				.appendTo(
+																						gallery);
+																		$(
+																				"<span />",
+																				{
+																					class : "nvgt",
+																					id : "next"
+																				})
+																				.appendTo(
+																						gallery);
+
+																		document
+																				.getElementById('light').style.display = 'block';
+																		document
+																				.getElementById('fade').style.display = 'block';
+																		init();
+																	})
+															.appendTo(
+																	divContent);
+
+												}
+											}
+										}
+									}
+								});
+
+			} else {
+				$(image_holder).empty();
+				if (markerGallery.length == 0) {
+					var divContent = $("<div />").appendTo(image_holder);
+					$(divContent).html("No Images avaiable.")
+
+				} else {
+					if (record["markerId"] == markerGallery[0].markerId) {
+						for (var j = 0; j < markerGallery.length; j++) {
+
+							var id = "DBid" + markerGallery[j].markerGalleryId;
+							// alert("added" + id);
+							dbUploadFiles[id] = markerGallery[j];
+							var divContent = $("<div />", {
+								id : 'div' + id
+							}).css({
+								width : "98px",
+								height : "89px",
+								float : "left",
+							}).appendTo(image_holder);
+							$(divContent).addClass("form=group");
+							var checkBox = $('<input />', {
+								type : 'checkbox',
+								id : id,
+								name : 'imagesCheckbox[]'
+							})
+									.click(
+											function() {
+												if ($('[name="imagesCheckbox[]"]:checked').length > 0) {
+													$("#deleteFiles").attr(
+															"disabled", false);
+												}
+											}).appendTo(divContent);
+							$(checkBox).css({
+								"vertical-align" : "top",
+								top : "0px"
+							});
+							$(checkBox).addClass("imgCheckBox");
+							$(checkBox).attr("disabled", "disabled");
+							var img = $(
+									"<img />",
+									{
+										id : "Img" + id,
+										src : "data:image/png;base64,"
+												+ markerGallery[j].imageFile,
+										class : "thumb-image",
+										height : "82px",
+										width : "82px",
+										position : "absolute",
+									})
+									.click(
+											function() {
+												var gallery = $("#gallery");
+												$(gallery).empty();
+												var ul = $("<ul />", {
+													id : "image_slider"
+												}).appendTo(gallery);
+												for (var j1 = 0; j1 < markerGallery.length; j1++) {
+													var li = $("<li />")
+															.appendTo(ul);
+													var thumbImg = $(
+															"<img/>",
+															{
+																id : j1,
+																src : "data:image/png;base64,"
+																		+ markerGallery[j1].imageFile,
+																width : "1050px",
+																height : "460px"
+															}).appendTo(li);
+												}
+												$("<span />", {
+													class : "nvgt",
+													id : "prev"
+												}).appendTo(gallery);
+												$("<span />", {
+													class : "nvgt",
+													id : "next"
+												}).appendTo(gallery);
+
+												document
+														.getElementById('light').style.display = 'block';
+												document.getElementById('fade').style.display = 'block';
+												init();
+											}).appendTo(divContent);
+						}
+					}
+				}
 
 			}
+
 		}
 
 		function highlightMarkerForEdit(marker, record) {
-		//	marker.setIcon(editMarkerImage);
+			// marker.setIcon(editMarkerImage);
 			editMarker = marker;
 			editMarkerData = record;
 		}
 
 		function unHighlightPrevMarkerForEdit() {
 			if (editMarker != null) {
-				//editMarker.setIcon(storedMarkerImage);
+				// editMarker.setIcon(storedMarkerImage);
 				// editMarker = null;
 				// editMarkerData = null;
 				formEdited = false;
@@ -986,78 +1203,103 @@ var ViewMarker = function() {
 			});
 		});
 
-		$("#save").click(function() {
-			formSlideOut();
-			var ajxCallRequired = true;
-			var editCall = false;
-			if ($("#markerId").val() > 0) {
-				ajxCallRequired = false;
-				if (editMarker != null && isEditDisabled() && formEdited) {
-					ajxCallRequired = true;
-					editCall = true;
-				}
-			}
-			if (ajxCallRequired) {
-				var oMyForm = new FormData();
-				var no_of_files = Object.keys(uploadFiles).length;
-				var no_of_filesDB = Object.keys(dbUploadFiles).length;
-				for (var i = 0; i < no_of_files; i++) {
-					if (uploadFiles[i] != null) {
-						oMyForm.append("imageFiles", uploadFiles[i]);
-					}
-				}
-				var markerGaleries = [];
-				$.each(dbUploadFiles, function(key, value) {
-					// alert(key);
-					// alert(value.markerGalleryId);
-					oMyForm.append("markerDatabaseIds", value.markerGalleryId);
-				});
-				var other_data = $("#marker_form").serializeArray();
-				// alert(other_data + oMyForm);
-				$.each(other_data, function(key, input) {
-					oMyForm.append(input.name, input.value);
-				});
+		$("#save")
+				.click(
+						function() {
+							formSlideOut();
+							var ajxCallRequired = true;
+							var editCall = false;
+							if ($("#markerId").val() > 0) {
+								ajxCallRequired = false;
+								if (editMarker != null && isEditDisabled()
+										&& formEdited) {
+									ajxCallRequired = true;
+									editCall = true;
+								}
+							}
+							if (ajxCallRequired) {
+								$("#load_message").empty();
+								$("#load_message")
+										.html(
+												"Please wait while we save the marker changes...");
+								document.getElementById('loading_light').style.display = 'block';
+								document.getElementById('loading_fade').style.display = 'block';
+								var oMyForm = new FormData();
+								var no_of_files = Object.keys(uploadFiles).length;
+								var no_of_filesDB = Object.keys(dbUploadFiles).length;
+								for (var i = 0; i < no_of_files; i++) {
+									if (uploadFiles[i] != null) {
+										oMyForm.append("imageFiles",
+												uploadFiles[i]);
+									}
+								}
+								var markerGaleries = [];
+								$.each(dbUploadFiles, function(key, value) {
+									// alert(key);
+									// alert(value.markerGalleryId);
+									oMyForm.append("markerDatabaseIds",
+											value.markerGalleryId);
+								});
+								var other_data = $("#marker_form")
+										.serializeArray();
+								// alert(other_data + oMyForm);
+								$.each(other_data, function(key, input) {
+									oMyForm.append(input.name, input.value);
+								});
 
-				$.ajax({
-					url : ctx + '/createMarker',
-					data : oMyForm,
-					dataType : 'text',
-					processData : false,
-					contentType : false,
-					type : 'POST',
-					success : function(markerData) {
-						// alert("success");
-						// alert(markerData);
-						var data = $.parseJSON(markerData);
-						var location = {
-							lat : data.latitude,
-							lng : data.longitude
-						};
-						if (editCall) {
-							editMarker.setMap(null);
-							db({
-								markerId : $("#markerId").val()
-							}).update(data);
-						} else {
-							marker.setMap(null);
-							db.insert(data);
-						}
-						editMarker = null;
-						marker_removed = true;
-						var markerImage = "./static/scripts/icons/markers/categories/"
-							+ data.categoryId + ".png";
-						
-						var marker_stored = new google.maps.Marker({
-							position : location,
-							map : map,
-							icon : markerImage
+								$
+										.ajax({
+											url : ctx + '/createMarker',
+											data : oMyForm,
+											dataType : 'text',
+											processData : false,
+											contentType : false,
+											type : 'POST',
+											success : function(markerData) {
+												document
+														.getElementById('loading_light').style.display = 'none';
+												document
+														.getElementById('loading_fade').style.display = 'none';
+
+												// alert("success");
+												// alert(markerData);
+												var data = $
+														.parseJSON(markerData);
+												var location = {
+													lat : data.latitude,
+													lng : data.longitude
+												};
+												if (editCall) {
+													editMarker.setMap(null);
+													db(
+															{
+																markerId : $(
+																		"#markerId")
+																		.val()
+															}).update(data);
+												} else {
+													marker.setMap(null);
+													db.insert(data);
+												}
+												editMarker = null;
+												marker_removed = true;
+												var markerImage = "./static/scripts/icons/markers/categories/"
+														+ data.categoryId
+														+ ".png";
+
+												var marker_stored = new google.maps.Marker(
+														{
+															position : location,
+															map : map,
+															icon : markerImage
+														});
+												addClickFunction(marker_stored,
+														data);
+												resetForm();
+											}
+										});
+							}
 						});
-						addClickFunction(marker_stored, data);
-						resetForm();
-					}
-				});
-			}
-		});
 
 		$("#edit").click(function() {
 			enableFormElements();
@@ -1130,6 +1372,101 @@ var ViewMarker = function() {
 			google.maps.event.trigger(map, "resize");
 			map.setCenter(currCenter);
 
+		});
+
+		// Image Gallery code.
+		var ul;
+		var li_items;
+		var imageNumber;
+		var imageWidth;
+		var prev, next;
+		var currentPostion = 0;
+		var currentImage = 0;
+
+		function init() {
+			currentPostion = 0;
+			currentImage = 0;
+			ul = document.getElementById('image_slider');
+			li_items = ul.children;
+			imageNumber = li_items.length;
+			imageWidth = li_items[0].children[0].clientWidth;
+			ul.style.width = parseInt(imageWidth * imageNumber) + 'px';
+			prev = document.getElementById("prev");
+			next = document.getElementById("next");
+			// .onclike = slide(-1) will be fired when onload;
+			/*
+			 * prev.onclick = function(){slide(-1);}; next.onclick =
+			 * function(){slide(1);};
+			 */
+			prev.onclick = function() {
+				onClickPrev();
+			};
+			next.onclick = function() {
+				onClickNext();
+			};
+		}
+
+		function animate(opts) {
+			var start = new Date;
+			var id = setInterval(function() {
+				var timePassed = new Date - start;
+				var progress = timePassed / opts.duration;
+				if (progress > 1) {
+					progress = 1;
+				}
+				var delta = opts.delta(progress);
+				opts.step(delta);
+				if (progress == 1) {
+					clearInterval(id);
+					opts.callback();
+				}
+			}, opts.delay || 17);
+			// return id;
+		}
+
+		function slideTo(imageToGo) {
+			var direction;
+			var numOfImageToGo = Math.abs(imageToGo - currentImage);
+			// slide toward left
+
+			direction = currentImage > imageToGo ? 1 : -1;
+			currentPostion = -1 * currentImage * imageWidth;
+			var opts = {
+				duration : 1000,
+				delta : function(p) {
+					return p;
+				},
+				step : function(delta) {
+					ul.style.left = parseInt(currentPostion + direction * delta
+							* imageWidth * numOfImageToGo)
+							+ 'px';
+				},
+				callback : function() {
+					currentImage = imageToGo;
+				}
+			};
+			animate(opts);
+		}
+
+		function onClickPrev() {
+			if (currentImage == 0) {
+				slideTo(imageNumber - 1);
+			} else {
+				slideTo(currentImage - 1);
+			}
+		}
+
+		function onClickNext() {
+			if (currentImage == imageNumber - 1) {
+				slideTo(0);
+			} else {
+				slideTo(currentImage + 1);
+			}
+		}
+
+		$("#close").click(function() {
+			document.getElementById('light').style.display = 'none';
+			document.getElementById('fade').style.display = 'none';
 		});
 
 	}

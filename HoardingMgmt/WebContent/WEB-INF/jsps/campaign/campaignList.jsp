@@ -43,7 +43,6 @@
 					id="sample_6">
 					<thead>
 						<tr>
-							<th>Campaign#</th>
 							<th>Title</th>
 							<th>Start Date</th>
 							<th class="hidden-xs">End Date</th>
@@ -56,7 +55,6 @@
 						<c:if test="${not empty campaignList}">
 							<c:forEach var="campaign" items="${campaignList}">
 								<tr class='clickable-row' data-href='${pageContext.request.contextPath}/viewCampaignDetail/campaignId/${campaign.campaignId}' >
-									<td>${campaign.campaignId}</td>
 									<td>${campaign.campaignTitle}</td>
 									<td>${campaign.campaignFrom}</td>
 									<td>${campaign.campaignTo}</td>
@@ -79,7 +77,7 @@
 				window.document.location = $(this).data("href");
 			});
 
-			TableAdvanced.init();
+		TableAdvanced.init();
 
 		});
 	</script>
